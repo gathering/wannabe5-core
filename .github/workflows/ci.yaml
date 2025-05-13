@@ -4,15 +4,15 @@ on:
   push:
 
 jobs:
-  phpunit:
+  tests:
     runs-on: ubuntu-latest
     steps:
-      - name: Setup docker db
-        run: |
-          docker compose -f compose.yml up db -d
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+      - name: Setup docker db
+        run: |
+          docker compose -f compose.yml up db -d
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
