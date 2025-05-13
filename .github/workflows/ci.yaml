@@ -9,7 +9,7 @@ jobs:
     steps:
       - name: Setup docker db
         run: |
-          docker compose up db -d
+          docker compose up db -d -f compose.yml
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
