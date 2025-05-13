@@ -1,0 +1,17 @@
+name: Laravel Pint
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  phplint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: laravel-pint
+        uses: aglipanci/laravel-pint-action@v2.5.0
+        with:
+          preset: laravel
+          verboseMode: true
+          testMode: true
+          useComposer: true
