@@ -4,6 +4,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return response()->json([
-        'Wannabe5-Core Alpha0',
+        'Wannabe5-Core' => 'alpha0',
     ]);
 });
