@@ -5,7 +5,7 @@ Wannabe5 Core - under development
 Needs docker and local php installation
 
 ```bash
-cp .env-development .env
+cp .env.development .env
 docker compose up -d
 composer install
 php artisan key:generate
