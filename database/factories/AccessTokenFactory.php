@@ -2,20 +2,20 @@
 
 namespace Database\Factories;
 
-use App\Models\User;
+use App\Models\AccessToken;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\AccessToken>
  */
-class UserFactory extends Factory
+class AccessTokenFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var class-string<\Illuminate\Database\Eloquent\Model>
      */
-    protected $model = User::class;
+    protected $model = AccessToken::class;
 
     /**
      * Define the model's default state.
@@ -25,9 +25,7 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'id' => fake()->uuid(),
-            'username' => fake()->unique()->safeEmail(),
-            'type' => 'user',
+            'name' => fake()->username(),
         ];
     }
 }

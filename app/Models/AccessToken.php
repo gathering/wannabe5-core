@@ -34,4 +34,15 @@ class AccessToken extends Model
     protected $hidden = [
         'token',
     ];
+
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (AccessToken $token) {
+            // Create a token if no token is provided
+            $token->token = $token->token ?: str()->random(64);
+        });
+    }
 }
