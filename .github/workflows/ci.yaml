@@ -30,3 +30,8 @@ jobs:
           php artisan migrate --force -n
       - name: Run tests
         run: php artisan test
+      - name: Check openapi.json file
+        run: |
+          php artisan scramble:analyze
+          php artisan scramble:export --path=openapi-ci.json
+          diff openapi.json openapi-ci.json

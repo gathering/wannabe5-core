@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\MetricsController;
+use App\Http\Controllers\UserProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -24,4 +25,5 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::get('/api/test', function () {
         return response()->json(Auth::user());
     });
+    Route::get('/api/profile', [UserProfileController::class, 'index']);
 });

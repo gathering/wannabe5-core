@@ -32,7 +32,7 @@ class TokenGuard implements Guard
     protected function authenticate()
     {
         $user = $this->request->getUser();
-        if (Uuid::isValid($user) === false) {
+        if ($user === null or Uuid::isValid($user) === false) {
             return false;
         }
         $token = AccessToken::where([['user_id', $user], ['token', $this->request->getPassword()]])->first();

@@ -35,9 +35,6 @@ class AccessToken extends Model
         'token',
     ];
 
-    /**
-     * The "booted" method of the model.
-     */
     protected static function booted(): void
     {
         static::creating(function (AccessToken $token) {

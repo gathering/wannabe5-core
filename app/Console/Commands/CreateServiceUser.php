@@ -40,7 +40,6 @@ class CreateServiceUser extends Command implements PromptsForMissingInput
         $token = new AccessToken;
         $token->user_id = $user->id;
         $token->name = $this->argument('name');
-        $token->token = str()->random(64);
         $token->save();
 
         $this->table(
