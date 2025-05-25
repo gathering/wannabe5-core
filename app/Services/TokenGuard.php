@@ -35,13 +35,19 @@ class TokenGuard implements Guard
         if ($user === null or Uuid::isValid($user) === false) {
             return false;
         }
-        $token = AccessToken::where([['user_id', $user], ['token', $this->request->getPassword()]])->first();
-        if ($token === null) {
+        $token = AccessToken::select(['token', 'user_id', 'last_used_at'])
+            ->where([['token', $this->request->getPassword()]])
+            ->first();
+
+        if ($token === null or $token->user_id !== $user) {
             return false;
         }
+
         $user = User::find($token->user_id);
         $this->setUser($user);
 
+        // Do not update last_updated
+        $token->timestamps = false;
         $token->last_used_at = Carbon::now();
         $token->save();
 

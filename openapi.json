@@ -19,6 +19,50 @@
         }
     ],
     "paths": {
+        "/": {
+            "get": {
+                "operationId": "index.index",
+                "tags": [
+                    "Index"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "env": {
+                                            "type": "string"
+                                        },
+                                        "debug": {
+                                            "type": "string"
+                                        },
+                                        "url": {
+                                            "type": "string"
+                                        },
+                                        "timezone": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "name",
+                                        "env",
+                                        "debug",
+                                        "url",
+                                        "timezone"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/metrics": {
             "get": {
                 "operationId": "metrics.index",
@@ -35,6 +79,9 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
