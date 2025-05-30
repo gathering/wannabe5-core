@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Support\Str;
 use KeycloakGuard\ActingAsKeycloakUser;
 
 uses(ActingAsKeycloakUser::class);
@@ -9,24 +10,54 @@ test('no access token deny access', function () {
     $this->getJson('/api/test')->assertUnauthorized();
 });
 
-test('that access token work', function () {
+test('access token without expires_at work', function () {
     $user = User::factory()->hasAccessTokens(1)->create();
+    expect($user->accessTokens[0]->last_used_at)->toBeNull();
+
+    $this->withAccessTokenUser($user)
+        ->getJson('/api/test')
+        ->assertOk();
+
+    // Check that last_used_at is updated
+    expect($user->accessTokens[0]->fresh()->last_used_at)->not->toBeNull();
+});
+
+test('invalid access token deny access', function () {
+    $user = User::factory()->hasAccessTokens(1)->create();
+
+    // Invalid key and token
+    $this->withAccessToken('test', 'test')
+        ->getJson('/api/test')
+        ->assertUnauthorized();
+
+    // Invalid token
+    $this->withAccessToken($user->id, str()->random(64))
+        ->getJson('/api/test')
+        ->assertUnauthorized();
+
+    // Invalid key
+    $this->withAccessToken(Str::uuid(), $user->accessTokens[0]->token)
+        ->getJson('/api/test')
+        ->assertUnauthorized();
+});
+
+test('active access token allow access', function () {
+    $user = User::factory()->hasAccessTokens(1, ['expires_at' => now()->addDay()])->create();
 
     $this->withAccessTokenUser($user)
         ->getJson('/api/test')
         ->assertOk();
 });
 
-test('broken access token deny access', function () {
-    $user = User::factory()->hasAccessTokens(1)->create();
+test('expired access token deny access', function () {
+    $user = User::factory()->hasAccessTokens(1, ['expires_at' => now()->subDay()])->create();
 
-    $this->withAccessToken('test', 'test')
+    $this->withAccessTokenUser($user)
         ->getJson('/api/test')
         ->assertUnauthorized();
 
-    $this->withAccessToken($user->id, str()->random(64))
-        ->getJson('/api/test')
-        ->assertUnauthorized();
+    // last_used_at is not updated
+    expect($user->accessTokens[0]->fresh()->last_used_at)->toBeNull();
 });
 
 test('that actingAsKeycloakUser works', function () {

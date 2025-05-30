@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\AccessToken;
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\Request;
@@ -35,11 +34,14 @@ class TokenGuard implements Guard
         if ($user === null or Uuid::isValid($user) === false) {
             return false;
         }
-        $token = AccessToken::select(['token', 'user_id', 'last_used_at'])
-            ->where([['token', $this->request->getPassword()]])
+        $token = AccessToken::where([['token', $this->request->getPassword()]])
             ->first();
 
         if ($token === null or $token->user_id !== $user) {
+            return false;
+        }
+
+        if ($token->expires_at !== null && $token->expires_at->isPast()) {
             return false;
         }
 
@@ -48,7 +50,7 @@ class TokenGuard implements Guard
 
         // Do not update last_updated
         $token->timestamps = false;
-        $token->last_used_at = Carbon::now();
+        $token->last_used_at = now();
         $token->save();
 
         return true;
