@@ -2,7 +2,7 @@
     "$schema": "https://getcomposer.org/schema.json",
     "name": "gathering/wannabe5-core",
     "type": "project",
-    "description": "",
+    "description": "Wannabe5 Core Backend",
     "keywords": [
         "laravel",
         "framework"
@@ -10,13 +10,18 @@
     "license": "GPL3",
     "require": {
         "php": "^8.2",
+        "dedoc/scramble": "^0.12.19",
         "laravel/framework": "^12.0",
-        "laravel/tinker": "^2.10.1"
+        "laravel/tinker": "^2.10.1",
+        "promphp/prometheus_client_php": "^2.14",
+        "propaganistas/laravel-phone": "^6.0",
+        "robsontenorio/laravel-keycloak-guard": "^1.6"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.22",
+        "laravel/telescope": "^5.7",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.6",
         "pestphp/pest": "^3.8",
@@ -61,7 +66,9 @@
     },
     "extra": {
         "laravel": {
-            "dont-discover": []
+            "dont-discover": [
+                "laravel/telescope"
+            ]
         }
     },
     "config": {
