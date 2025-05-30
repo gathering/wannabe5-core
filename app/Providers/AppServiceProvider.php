@@ -2,12 +2,14 @@
 
 namespace App\Providers;
 
+use App\Models\User;
 use App\Services\TokenGuard;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
 use Dedoc\Scramble\Support\Generator\SecurityRequirement;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Hashing\BcryptHasher;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
 use KeycloakGuard\KeycloakGuard;
@@ -36,7 +38,7 @@ class AppServiceProvider extends ServiceProvider
                 return new TokenGuard($request);
             }
 
-            return new KeycloakGuard(Auth::createUserProvider($config['provider']), $request);
+            return new KeycloakGuard(new CustomUserProvider(new BcryptHasher, User::class), $request);
         });
         Scramble::configure()
             ->withDocumentTransformers(function (OpenApi $openApi) {

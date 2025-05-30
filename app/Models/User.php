@@ -13,6 +13,8 @@ class User extends Authenticatable
 
     public $incrementing = false;
 
+    protected $fillable = ['id', 'type'];
+
     public function accessTokens()
     {
         return $this->hasMany(AccessToken::class, 'user_id', 'id');
