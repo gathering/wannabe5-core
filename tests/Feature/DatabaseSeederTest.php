@@ -1,0 +1,16 @@
+<?php
+
+use Database\Seeders\DatabaseSeeder;
+
+test('db:seed works', function () {
+    $this->seed(DatabaseSeeder::class);
+
+    $this->assertDatabaseHas('users', [
+        'id' => 'eaf9efc2-adbb-4b27-b5a9-f6c60197ab56', // testbruker
+    ]);
+
+    $this->assertDatabaseHas('access_tokens', [
+        'user_id' => 'eaf9efc2-adbb-4b27-b5a9-f6c60197ab56', // testbruker
+        'token' => 'testbruker',
+    ]);
+});
