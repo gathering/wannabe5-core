@@ -72,7 +72,7 @@ test('that actingAsKeycloakUser works with existing user', function () {
     $user = User::factory()->create();
 
     $this->actingAsKeycloakUser($user, [
-        'preferred_username' => 'test121@example.com',
+        'email' => 'test121@example.com',
     ])
         ->getJson('/api/test')
         ->assertOk();
@@ -90,7 +90,9 @@ test('that actingAsKeycloakUser works with non-existing user', function () {
 
     $this->actingAsKeycloakUser(null, [
         'sub' => 'a6a7c6a3-fa75-4791-b4db-f3a5e427f6f5',
-        'preferred_username' => 'test131@example.com',
+        'email' => 'test131@example.com',
+        'given_name' => 'test',
+        'family_name' => 'test',
     ])
         ->getJson('/api/test')
         ->assertOk();
@@ -99,4 +101,23 @@ test('that actingAsKeycloakUser works with non-existing user', function () {
         'id' => 'a6a7c6a3-fa75-4791-b4db-f3a5e427f6f5',
         'username' => 'test131@example.com',
     ]);
+});
+
+test('profile created for new users', function () {
+    $this->assertDatabaseEmpty('users');
+    $this->assertDatabaseEmpty('user_profiles');
+
+    $this->actingAsKeycloakUser(null, [
+        'sub' => Str::uuid(),
+        'email' => fake()->unique()->safeEmail(),
+        'given_name' => fake()->firstName(),
+        'family_name' => fake()->lastName(),
+    ])
+        ->getJson('/api/test')
+        ->assertOk();
+
+    $user = User::first();
+    expect($user->profile->email)->toBeString()->toBe($user->username);
+    expect($user->profile->firstname)->toBeString();
+    expect($user->profile->lastname)->toBeString();
 });

@@ -2,9 +2,12 @@
 
 namespace App\Models;
 
+use App\Observers\UserObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
+#[ObservedBy([UserObserver::class])]
 class User extends Authenticatable
 {
     use HasFactory;
@@ -18,5 +21,10 @@ class User extends Authenticatable
     public function accessTokens()
     {
         return $this->hasMany(AccessToken::class, 'user_id', 'id');
+    }
+
+    public function profile()
+    {
+        return $this->hasOne(UserProfile::class, 'user_id', 'id');
     }
 }

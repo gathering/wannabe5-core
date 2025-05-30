@@ -11,16 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_profile', function (Blueprint $table) {
+        Schema::create('user_profiles', function (Blueprint $table) {
             $table->id();
             $table->uuid('user_id');
-            $table->string('name', 128)->nullable();
+            $table->string('firstname', 128)->nullable();
+            $table->string('lastname', 128)->nullable();
             $table->string('nickname', 128)->nullable();
-            $table->string('email', 128);
+            $table->string('email', 256);
             $table->date('birth')->nullable();
-            $table->enum('sexe', ['undefined', 'male', 'female', 'other', 'na'])->default('undefined');
+            $table->enum('gender', ['undefined', 'male', 'female', 'other'])->default('undefined');
             $table->string('phone')->nullable();
-            $table->string('language', 8)->default('');
             $table->timestamps();
         });
     }
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('user_profile');
+        Schema::dropIfExists('user_profiles');
     }
 };

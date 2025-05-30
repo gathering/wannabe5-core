@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use App\Models\UserProfile;
 use Database\Seeders\UserSeeder;
 
 test('user can be instantiated', function () {
@@ -25,14 +26,19 @@ test('user factory creates new user', function () {
     expect($user->id)->toBeUuid();
     expect($user->type)->toBeString()->toBe('user');
     expect($user->created_at)->not->toBeNull();
+    expect($user->profile)->not->toBeNull();
 });
 
 test('user factory creates new service user', function () {
     $user = User::factory()->create(['username' => 'svc-account', 'type' => 'service']);
     expect($user->type)->toBeString()->toBe('service');
+
+    // Do not create profile for service accounts
+    expect($user->profile)->toBeNull();
 });
 
 test('user seed creates new users', function () {
     $this->seed(UserSeeder::class);
     expect(User::all())->toHaveCount(10);
+    expect(UserProfile::all())->toHaveCount(10);
 });

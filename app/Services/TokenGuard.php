@@ -45,7 +45,7 @@ class TokenGuard implements Guard
             return false;
         }
 
-        $user = User::find($token->user_id);
+        $user = User::findOrFail($token->user_id);
         $this->setUser($user);
 
         // Do not update last_updated

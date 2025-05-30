@@ -89,22 +89,21 @@
         "/profile": {
             "get": {
                 "operationId": "userProfile.index",
+                "description": "This is a description. In can be as large as needed and contain `markdown`.",
+                "summary": "UserProfile.Index",
                 "tags": [
                     "User Profile"
                 ],
                 "responses": {
                     "200": {
-                        "description": "Array of `UserResource`",
+                        "description": "`UserProfileResource`",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/UserResource"
-                                            }
+                                            "$ref": "#/components/schemas/UserProfileResource"
                                         }
                                     },
                                     "required": [
@@ -134,17 +133,60 @@
             }
         },
         "schemas": {
-            "UserResource": {
+            "UserProfileGender": {
+                "type": "string",
+                "enum": [
+                    "undefined",
+                    "male",
+                    "female",
+                    "other"
+                ],
+                "title": "UserProfileGender"
+            },
+            "UserProfileResource": {
                 "type": "object",
                 "properties": {
                     "id": {
+                        "type": "integer"
+                    },
+                    "user_id": {
                         "type": "string"
                     },
-                    "type": {
+                    "firstname": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "lastname": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "nickname": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "email": {
                         "type": "string"
                     },
-                    "username": {
-                        "type": "string"
+                    "birth": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "gender": {
+                        "$ref": "#/components/schemas/UserProfileGender"
+                    },
+                    "phone": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "created_at": {
                         "type": [
@@ -163,12 +205,18 @@
                 },
                 "required": [
                     "id",
-                    "type",
-                    "username",
+                    "user_id",
+                    "firstname",
+                    "lastname",
+                    "nickname",
+                    "email",
+                    "birth",
+                    "gender",
+                    "phone",
                     "created_at",
                     "updated_at"
                 ],
-                "title": "UserResource"
+                "title": "UserProfileResource"
             }
         },
         "responses": {

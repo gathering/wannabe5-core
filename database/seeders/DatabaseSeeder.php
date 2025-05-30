@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\UserProfileGender;
 use App\Models\AccessToken;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -21,7 +22,18 @@ class DatabaseSeeder extends Seeder
         // Create the development user
         $dev_user = User::firstOrCreate([
             'id' => 'eaf9efc2-adbb-4b27-b5a9-f6c60197ab56',
-            'username' => 'testbruker',
+            'username' => 'testbruker@wannabe.no',
+            'type' => 'user',
+        ]);
+
+        // Update UserProfile for development user
+        $dev_user->profile->update([
+            'firstname' => 'Test',
+            'lastname' => 'Brukersen',
+            'nickname' => 'testbruker',
+            'gender' => UserProfileGender::MALE,
+            'birth' => '19920415',
+            'phone' => fake()->e164PhoneNumber(),
         ]);
 
         // Create development token
