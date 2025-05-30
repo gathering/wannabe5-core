@@ -13,11 +13,17 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Do not run in production, we don't want test users with tokens in live systems
+        if (! app()->environment(['local', 'testing'])) {
+            return;
+        }
+
         // Create the development user
         $dev_user = User::firstOrCreate([
             'id' => 'eaf9efc2-adbb-4b27-b5a9-f6c60197ab56',
             'username' => 'testbruker',
         ]);
+
         // Create development token
         $dev_token = AccessToken::firstOrCreate([
             'name' => 'development',
