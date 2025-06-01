@@ -66,6 +66,8 @@
         "/metrics": {
             "get": {
                 "operationId": "metrics.index",
+                "description": "Prometheus metrics",
+                "summary": "Metrics.Index",
                 "tags": [
                     "Metrics"
                 ],

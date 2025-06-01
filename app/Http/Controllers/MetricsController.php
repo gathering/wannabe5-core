@@ -8,6 +8,11 @@ use Prometheus\Storage\InMemory;
 
 class MetricsController extends Controller
 {
+    /**
+     * Metrics.Index
+     *
+     * Prometheus metrics
+     */
     public function index()
     {
         $registry = new CollectorRegistry(new InMemory);

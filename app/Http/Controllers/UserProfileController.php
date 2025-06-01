@@ -16,6 +16,8 @@ class UserProfileController extends Controller
      */
     public function index()
     {
-        return new UserProfileResource(UserProfile::where('user_id', auth()->user()->id)->first());
+        return new UserProfileResource(
+            UserProfile::where('user_id', auth()->user()->id)->firstOrFail()
+        );
     }
 }

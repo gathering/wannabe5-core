@@ -12,7 +12,6 @@ test('db:seed works', function () {
 
     $this->assertDatabaseHas('access_tokens', [
         'user_id' => 'eaf9efc2-adbb-4b27-b5a9-f6c60197ab56', // testbruker
-        'token' => 'testbruker',
     ]);
 
     $this->assertDatabaseHas('user_profiles', [
@@ -25,4 +24,5 @@ test('db:seed works', function () {
 
     expect($user->profile->firstname)->toBeString()->toBe('Test');
     expect($user->profile->lastname)->toBeString()->toBe('Brukersen');
+    expect($user->accessTokens->first()->token)->toBeString()->toBe('testbruker');
 });

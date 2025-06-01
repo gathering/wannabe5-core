@@ -2,7 +2,7 @@
 Wannabe5 Core - under development
 
 ### Development user
-After running `php artisan db:seed` a User 'testbruker' with the id `eaf9efc2-adbb-4b27-b5a9-f6c60197ab56` is created and a AccessToken with the token `testbruker`  
+After running the seed a User 'testbruker' with the id `eaf9efc2-adbb-4b27-b5a9-f6c60197ab56` is created and a AccessToken with the token `testbruker`  
 This can be used in `/docs/api` to test api endpoints  
 
 ![testbruker in api docs](docs/images/testbruker.png)
@@ -16,8 +16,8 @@ cp .env.development .env
 docker compose up -d
 composer install
 php artisan key:generate
+php artisan migrate:fresh --seed
 php artisan serve
-php artisan db:seed
 ```
 
 Or using Visual Studio Code dev-containers ([requirements and setup-guide](https://code.visualstudio.com/docs/devcontainers/containers#_installation)):
@@ -38,6 +38,7 @@ After the dev-container is running, you need to run the following inside the con
 ```bash
 composer install
 php artisan key:generate
+php artisan migrate:fresh --seed
 php artisan serve
 ```
 

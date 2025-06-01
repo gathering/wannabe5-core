@@ -30,28 +30,36 @@ class TokenGuard implements Guard
      */
     protected function authenticate()
     {
-        $user = $this->request->getUser();
-        if ($user === null or Uuid::isValid($user) === false) {
+        $user_uuid = $this->request->getUser();
+        if ($user_uuid === null or Uuid::isValid($user_uuid) === false) {
             return false;
         }
-        $token = AccessToken::where([['token', $this->request->getPassword()]])
-            ->first();
+        $user = User::findOrFail($user_uuid);
 
-        if ($token === null or $token->user_id !== $user) {
+        $accessToken = null;
+        $user->accessTokens->each(function (AccessToken $token) use (&$accessToken) {
+            if ($token->token == $this->request->getPassword()) {
+                $accessToken = $token;
+
+                return;
+            }
+        });
+
+        if ($accessToken === null or $accessToken->user_id !== $user->id) {
             return false;
         }
 
-        if ($token->expires_at !== null && $token->expires_at->isPast()) {
+        if ($accessToken->expires_at !== null and $accessToken->expires_at->isPast()) {
             return false;
         }
 
-        $user = User::findOrFail($token->user_id);
+        // Set current user to token user
         $this->setUser($user);
 
-        // Do not update last_updated
-        $token->timestamps = false;
-        $token->last_used_at = now();
-        $token->save();
+        // Update last_used_at without updating last_updated
+        $accessToken->timestamps = false;
+        $accessToken->last_used_at = now();
+        $accessToken->save();
 
         return true;
     }

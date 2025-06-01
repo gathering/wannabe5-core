@@ -14,6 +14,7 @@ class AccessToken extends Model
     protected $casts = [
         'last_used_at' => 'datetime',
         'expires_at' => 'datetime',
+        'token' => 'encrypted',
     ];
 
     /**

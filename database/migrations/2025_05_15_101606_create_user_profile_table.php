@@ -22,6 +22,8 @@ return new class extends Migration
             $table->enum('gender', ['undefined', 'male', 'female', 'other'])->default('undefined');
             $table->string('phone')->nullable();
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users');
         });
     }
 

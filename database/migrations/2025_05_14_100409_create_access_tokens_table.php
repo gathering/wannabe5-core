@@ -15,10 +15,12 @@ return new class extends Migration
             $table->id();
             $table->foreignUuid('user_id');
             $table->string('name');
-            $table->string('token', 64)->unique();
+            $table->text('token'); // Encrypted field
             $table->timestamp('last_used_at')->nullable();
             $table->timestamp('expires_at')->nullable();
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users');
         });
     }
 
