@@ -117,7 +117,7 @@ test('profile created for new users', function () {
         ->assertOk();
 
     $user = User::first();
-    expect($user->profile->email)->toBeString()->toBe($user->username);
-    expect($user->profile->firstname)->toBeString();
-    expect($user->profile->lastname)->toBeString();
+    expect($user->userProfile->email)->toBeString()->toBe($user->username);
+    expect($user->userProfile->firstname)->toBeString();
+    expect($user->userProfile->lastname)->toBeString();
 });

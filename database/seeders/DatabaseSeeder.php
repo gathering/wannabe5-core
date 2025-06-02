@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Enums\UserProfileGender;
 use App\Models\AccessToken;
 use App\Models\User;
+use App\Models\UserCrewHistory;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -27,13 +28,17 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Update UserProfile for development user
-        $dev_user->profile->update([
+        $dev_user->userProfile->update([
             'firstname' => 'Test',
             'lastname' => 'Brukersen',
             'nickname' => 'testbruker',
             'gender' => UserProfileGender::MALE,
-            'birth' => '19920415',
+            'birthdate' => '19920415',
             'phone' => fake()->e164PhoneNumber(),
+            'streetaddress' => fake()->streetAddress(),
+            'postcode' => fake()->postcode(),
+            'town' => fake()->city(),
+            'countrycode' => 'US',
         ]);
 
         // Create development token
@@ -41,6 +46,14 @@ class DatabaseSeeder extends Seeder
             'name' => 'development',
             'user_id' => $dev_user->id,
             'token' => 'testbruker',
+        ]);
+
+        // Crew history for development user
+        UserCrewHistory::factory()->for($dev_user->userProfile)->count(5)->create();
+
+        // Seed bunch of users
+        $this->call([
+            UserSeeder::class,
         ]);
     }
 }

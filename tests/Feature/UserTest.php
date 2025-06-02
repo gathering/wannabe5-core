@@ -26,7 +26,7 @@ test('user factory creates new user', function () {
     expect($user->id)->toBeUuid();
     expect($user->type)->toBeString()->toBe('user');
     expect($user->created_at)->not->toBeNull();
-    expect($user->profile)->not->toBeNull();
+    expect($user->userProfile)->not->toBeNull();
 });
 
 test('user factory creates new service user', function () {
@@ -34,7 +34,7 @@ test('user factory creates new service user', function () {
     expect($user->type)->toBeString()->toBe('service');
 
     // Do not create profile for service accounts
-    expect($user->profile)->toBeNull();
+    expect($user->userProfile)->toBeNull();
 });
 
 test('user seed creates new users', function () {

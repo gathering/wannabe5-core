@@ -62,6 +62,7 @@ If the automatic script fails, you can run individual commands manually (still i
 composer install
 php artisan key:generate
 php artisan migrate:fresh --seed
+php artisan test
 php artisan serve
 ```
 > [!TIP]

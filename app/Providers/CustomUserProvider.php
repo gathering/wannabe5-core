@@ -17,11 +17,11 @@ class CustomUserProvider extends EloquentUserProvider
 
         // Set firstname and lastname
         if (isset($token->given_name) && isset($token->family_name)) {
-            $user->profile->firstname = $token->given_name ?? null;
-            $user->profile->lastname = $token->family_name ?? null;
+            $user->userProfile->firstname = $token->given_name ?? null;
+            $user->userProfile->lastname = $token->family_name ?? null;
 
             // Will only run if there are any changes
-            $user->profile->save();
+            $user->userProfile->save();
         }
 
         return $user;

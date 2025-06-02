@@ -13,5 +13,9 @@ Route::group(['middleware' => 'auth:api'], function () {
         return response()->json(Auth::user());
     });
     Route::get('/metrics', [MetricsController::class, 'index']);
-    Route::get('/profile', [UserProfileController::class, 'index']);
+
+    Route::get('/profile/search', [UserProfileController::class, 'search']);
+    Route::apiResources([
+        'profile' => UserProfileController::class,
+    ]);
 });

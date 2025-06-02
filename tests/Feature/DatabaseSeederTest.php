@@ -20,9 +20,10 @@ test('db:seed works', function () {
 
     $user = User::findOrFail('eaf9efc2-adbb-4b27-b5a9-f6c60197ab56');
     $this->assertModelExists($user);
-    $this->assertModelExists($user->profile);
+    $this->assertModelExists($user->userProfile);
 
-    expect($user->profile->firstname)->toBeString()->toBe('Test');
-    expect($user->profile->lastname)->toBeString()->toBe('Brukersen');
+    expect($user->userProfile->firstname)->toBeString()->toBe('Test');
+    expect($user->userProfile->lastname)->toBeString()->toBe('Brukersen');
+    expect($user->userProfile->nickname)->toBeString()->toBe('testbruker');
     expect($user->accessTokens->first()->token)->toBeString()->toBe('testbruker');
 });
