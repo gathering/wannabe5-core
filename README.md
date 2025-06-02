@@ -1,6 +1,13 @@
 # wannabe5-core
 Wannabe5 Core - under development
 
+### Development user
+After running the seed a User 'testbruker' with the id `eaf9efc2-adbb-4b27-b5a9-f6c60197ab56` is created and a AccessToken with the token `testbruker`  
+This can be used in `/docs/api` to test api endpoints  
+
+![testbruker in api docs](docs/images/testbruker.png)
+
+
 #### Local development - 2025-05-13
 Needs docker and local php installation
 
@@ -9,6 +16,7 @@ cp .env.development .env
 docker compose up -d
 composer install
 php artisan key:generate
+php artisan migrate:fresh --seed
 php artisan serve
 ```
 
@@ -30,6 +38,7 @@ After the dev-container is running, you need to run the following inside the con
 ```bash
 composer install
 php artisan key:generate
+php artisan migrate:fresh --seed
 php artisan serve
 ```
 

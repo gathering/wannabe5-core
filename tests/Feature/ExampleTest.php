@@ -1,11 +1,13 @@
 <?php
 
-test('the application returns a successful response', function () {
-    $response = $this->get('/');
-
-    $response
+test('the application index returns a successful response', function () {
+    $this->get('/api')
         ->assertOk()
-        ->assertExactJson([
-            'Wannabe5-Core' => 'alpha0',
+        ->assertJson([
+            'name' => config('app.name'),
         ]);
+});
+
+test('up is alive', function () {
+    $response = $this->get('/up')->assertOk();
 });
