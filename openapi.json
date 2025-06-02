@@ -10,6 +10,11 @@
             "url": "http://localhost:8000/api"
         }
     ],
+    "tags": [
+        {
+            "name": "User Profile"
+        }
+    ],
     "security": [
         {
             "basic": []
@@ -88,13 +93,96 @@
                 }
             }
         },
-        "/profile": {
+        "/profile/search": {
             "get": {
-                "operationId": "userProfile.index",
-                "description": "This is a description. In can be as large as needed and contain `markdown`.",
-                "summary": "UserProfile.Index",
+                "operationId": "userProfile.search",
+                "description": "Search on UserProfiles",
+                "summary": "UserProfile.search",
                 "tags": [
                     "User Profile"
+                ],
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "Firstname and/or lastname",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "phone",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "nickname",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`UserProfileCollection`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/UserProfileCollection"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/profile/{profile}": {
+            "get": {
+                "operationId": "profile.show",
+                "description": "Display the specified profile.",
+                "summary": "UserProfile.show",
+                "tags": [
+                    "User Profile"
+                ],
+                "parameters": [
+                    {
+                        "name": "profile",
+                        "in": "path",
+                        "required": true,
+                        "description": "The user UUID or profile ID (wb-id)",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "description": "Include additional models",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -115,8 +203,69 @@
                             }
                         }
                     },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "profile.update",
+                "description": "Update the specified profile.",
+                "summary": "UserProfile.update",
+                "tags": [
+                    "User Profile"
+                ],
+                "parameters": [
+                    {
+                        "name": "profile",
+                        "in": "path",
+                        "required": true,
+                        "description": "The user UUID or profile ID (wb-id)",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserProfileRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`UserProfileResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/UserProfileResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
                     }
                 }
             }
@@ -126,15 +275,44 @@
         "securitySchemes": {
             "basic": {
                 "type": "http",
+                "description": "Wannabe5 Core Access Token.  \n                    Use User UUID as username and token as password.",
                 "scheme": "basic"
             },
             "bearer": {
                 "type": "http",
+                "description": "Wannabe5 Keycloak JWT",
                 "scheme": "bearer",
                 "bearerFormat": "JWT"
             }
         },
         "schemas": {
+            "UserCrewHistoryResource": {
+                "type": "object",
+                "properties": {
+                    "event_name": {
+                        "type": "string"
+                    },
+                    "crew_name": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "event_name",
+                    "crew_name",
+                    "title"
+                ],
+                "title": "UserCrewHistoryResource"
+            },
+            "UserProfileCollection": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/UserProfileResource"
+                },
+                "title": "UserProfileCollection"
+            },
             "UserProfileGender": {
                 "type": "string",
                 "enum": [
@@ -145,14 +323,69 @@
                 ],
                 "title": "UserProfileGender"
             },
+            "UserProfileRequest": {
+                "type": "object",
+                "properties": {
+                    "nickname": {
+                        "type": "string",
+                        "maxLength": 50
+                    },
+                    "birthdate": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "gender": {
+                        "$ref": "#/components/schemas/UserProfileGender"
+                    },
+                    "phone": {
+                        "type": "string"
+                    },
+                    "address": {
+                        "type": "object",
+                        "properties": {
+                            "streetaddress": {
+                                "type": "string"
+                            },
+                            "town": {
+                                "type": "string"
+                            },
+                            "postcode": {
+                                "type": "string"
+                            },
+                            "countrycode": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "streetaddress",
+                            "town",
+                            "postcode",
+                            "countrycode"
+                        ]
+                    }
+                },
+                "required": [
+                    "nickname",
+                    "birthdate",
+                    "gender",
+                    "phone"
+                ],
+                "title": "UserProfileRequest"
+            },
             "UserProfileResource": {
                 "type": "object",
                 "properties": {
                     "id": {
-                        "type": "integer"
+                        "type": "integer",
+                        "examples": [
+                            1
+                        ]
                     },
                     "user_id": {
-                        "type": "string"
+                        "type": "string",
+                        "examples": [
+                            "12345678-1234-5678-1234-567812345678"
+                        ]
                     },
                     "firstname": {
                         "type": [
@@ -166,19 +399,22 @@
                             "null"
                         ]
                     },
+                    "email": {
+                        "type": "string"
+                    },
                     "nickname": {
                         "type": [
                             "string",
                             "null"
                         ]
                     },
-                    "email": {
-                        "type": "string"
-                    },
-                    "birth": {
+                    "birthdate": {
                         "type": [
                             "string",
                             "null"
+                        ],
+                        "examples": [
+                            "2019-08-24"
                         ]
                     },
                     "gender": {
@@ -189,6 +425,47 @@
                             "string",
                             "null"
                         ]
+                    },
+                    "address": {
+                        "type": "object",
+                        "properties": {
+                            "streetaddress": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "town": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "postcode": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "countrycode": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "streetaddress",
+                            "town",
+                            "postcode",
+                            "countrycode"
+                        ]
+                    },
+                    "crew_history": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/UserCrewHistoryResource"
+                        }
                     },
                     "created_at": {
                         "type": [
@@ -206,15 +483,13 @@
                     }
                 },
                 "required": [
-                    "id",
-                    "user_id",
-                    "firstname",
                     "lastname",
-                    "nickname",
                     "email",
-                    "birth",
+                    "nickname",
+                    "birthdate",
                     "gender",
                     "phone",
+                    "address",
                     "created_at",
                     "updated_at"
                 ],
@@ -236,6 +511,55 @@
                             },
                             "required": [
                                 "message"
+                            ]
+                        }
+                    }
+                }
+            },
+            "ModelNotFoundException": {
+                "description": "Not found",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "description": "Error overview."
+                                }
+                            },
+                            "required": [
+                                "message"
+                            ]
+                        }
+                    }
+                }
+            },
+            "ValidationException": {
+                "description": "Validation error",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "description": "Errors overview."
+                                },
+                                "errors": {
+                                    "type": "object",
+                                    "description": "A detailed description of each field that failed validation.",
+                                    "additionalProperties": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            },
+                            "required": [
+                                "message",
+                                "errors"
                             ]
                         }
                     }
