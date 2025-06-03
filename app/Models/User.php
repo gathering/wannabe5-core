@@ -23,7 +23,7 @@ class User extends Authenticatable
         return $this->hasMany(AccessToken::class, 'user_id', 'id');
     }
 
-    public function profile()
+    public function userProfile()
     {
         return $this->hasOne(UserProfile::class, 'user_id', 'id');
     }

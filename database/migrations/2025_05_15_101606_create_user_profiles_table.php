@@ -18,9 +18,15 @@ return new class extends Migration
             $table->string('lastname', 128)->nullable();
             $table->string('nickname', 128)->nullable();
             $table->string('email', 256);
-            $table->date('birth')->nullable();
+            $table->date('birthdate')->nullable();
             $table->enum('gender', ['undefined', 'male', 'female', 'other'])->default('undefined');
             $table->string('phone')->nullable();
+
+            $table->string('streetaddress', 128)->nullable();
+            $table->string('postcode', 32)->nullable();
+            $table->string('town', 128)->nullable();
+            $table->string('countrycode', 2)->nullable();
+
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users');
