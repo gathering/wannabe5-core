@@ -22,10 +22,10 @@ Basic development setup requires 3 things
 
 #### 1. Basic configuration
 
-Use our recommended defaults by using the included example .env file. Copy `.env.development` to `.env`
+Use our recommended defaults by using the included example .env file. Copy `.env.example` to `.env`
 
 ```bash
-cp .env.development .env
+cp .env.example .env
 ```
 
 #### 2. Start Laravel and Posgres containers
@@ -74,7 +74,7 @@ The underlying requirements are the same as getting started setup, but in additi
 First, set-up the env variables (identical to step 1 in regular setup)
 
 ```bash
-cp .env.development .env
+cp .env.example .env
 ```
 
 After the database is up and running, you can start the dev-container from your VS Code interface.
