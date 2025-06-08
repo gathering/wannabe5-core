@@ -2,21 +2,22 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/php
 {
 	"name": "PHP",
-	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/php:1-8.4-bullseye",
-
-	// Features to add to the dev container. More info: https://containers.dev/features.
-	// "features": {},
+	// Use existing docker compose file to keep workflows consistent
+	// More info: https://containers.dev/guide/dockerfile
+	"dockerComposeFile": "../compose.yml",
+	"service": "devcontainer",
+	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 
 	// Configure tool-specific properties.
 	// "customizations": {},
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	"forwardPorts": [
-		8000
-	],
+	"forwardPorts": [8000],
+
+	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
-		"ghcr.io/devcontainers-extra/features/composer:1": {}
+		"ghcr.io/devcontainers-extra/features/composer:1": {},
+		"ghcr.io/robbert229/devcontainer-features/postgresql-client:1": {}
 	}
 
 	// Use 'postCreateCommand' to run commands after the container is created.

@@ -1,4 +1,14 @@
 services:
+  # Mainly used via .devcontainer/devcontainer.json, feel free to disable if needed
+  devcontainer:
+    build:
+      dockerfile: ./.devcontainer/Dockerfile
+    volumes:
+      # Includes all sibling folders of current one, seems to be common pattern used in VSCode so copying it here
+      # Matches `workspaceFolder` setting in devcontainer.json
+      - ..:/workspaces:cached
+    command: sleep infinity
+
   db:
     image: postgres
     ports:
