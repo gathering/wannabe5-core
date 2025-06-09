@@ -25,7 +25,7 @@ jobs:
         run: composer install -n --prefer-dist
       - name: Prepare Laravel Application
         run: |
-          cp .env.development .env
+          cp .env.ci.testing .env
           php artisan key:generate
           php artisan migrate --force -n
       - name: Run tests

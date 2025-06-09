@@ -1,4 +1,16 @@
 services:
+  # Mainly used via .devcontainer/devcontainer.json, feel free to disable if needed
+  devcontainer:
+    build:
+      dockerfile: ./.devcontainer/Dockerfile
+    ports:
+      # Should ideally match those listed in devcontainer.json
+      - 8000:8000
+    volumes:
+      # Matches `workspaceFolder` setting in devcontainer.json
+      - .:/workspace:cached
+    command: ./scripts/initialise-dev-container.sh php artisan serve
+
   db:
     image: postgres
     ports:

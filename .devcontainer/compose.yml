@@ -1,0 +1,4 @@
+# Used to extend ./compose.yml when used as Dev Container in VSCode
+services:
+  devcontainer:
+    command: sleep infinity
