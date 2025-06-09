@@ -7,9 +7,8 @@ services:
       # Should ideally match those listed in devcontainer.json
       - 8000:8000
     volumes:
-      # Includes all sibling folders of current one, seems to be common pattern used in VSCode so copying it here
       # Matches `workspaceFolder` setting in devcontainer.json
-      - ..:/workspaces:cached
+      - .:/workspace:cached
     command: sleep infinity
 
   db:
