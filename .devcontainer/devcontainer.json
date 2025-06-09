@@ -21,7 +21,8 @@
 	}
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "sudo chmod a+x \"$(pwd)\" && sudo rm -rf /var/www/html && sudo ln -s \"$(pwd)\" /var/www/html"
+	// Consider using postStartCommand if you prefer things to run each time container is started
+	"postCreateCommand": "bash ./scripts/initialise-dev-container.sh"
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"
