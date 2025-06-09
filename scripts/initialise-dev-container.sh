@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+seeded=0
+
 function setup_composer() {
 	echo 'Running composer install to make sure dependencies are installed and up to date'
 	composer install
@@ -34,10 +36,21 @@ function seed_database() {
 	elif [[ $status == *"Pending"* || $status == *"table not found"* ]]; then
 		echo 'No migrations seem to have have been run, migrating and seeding database'
 		php artisan migrate:fresh --seed
+		seeded=1
 	fi
+}
+
+function generate_app_key() {
+	if [[ $seeded -eq 0 ]]; then
+		echo 'No database seeding was done, assuming application key has already been generated'
+	fi
+
+	echo 'Generating application key'
+	php artisan key:generate
 }
 
 setup_composer
 seed_database
+generate_app_key
 
 echo 'Automatic initialization of dev container is done, check out project README.md for more information on manual steps and general development information'
