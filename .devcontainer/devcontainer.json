@@ -4,7 +4,7 @@
 	"name": "PHP",
 	// Use existing docker compose file to keep workflows consistent
 	// More info: https://containers.dev/guide/dockerfile
-	"dockerComposeFile": "../compose.yml",
+	"dockerComposeFile": ["../compose.yml", "./compose.yml"],
 	"service": "devcontainer",
 	"workspaceFolder": "/workspace",
 

@@ -54,3 +54,8 @@ seed_database
 generate_app_key
 
 echo 'Automatic initialization of dev container is done, check out project README.md for more information on manual steps and general development information'
+
+# If any additional commands are passed to this script, execute them (ie. act as container entrypoint)
+if [[ "$1" ]]; then
+	eval "$@"
+fi
