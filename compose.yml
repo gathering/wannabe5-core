@@ -9,7 +9,7 @@ services:
     volumes:
       # Matches `workspaceFolder` setting in devcontainer.json
       - .:/workspace:cached
-    command: ./scripts/initialise-dev-container.sh php artisan serve
+    command: ./scripts/initialise-dev-container.sh php artisan serve --host=0.0.0.0
 
   db:
     image: postgres
