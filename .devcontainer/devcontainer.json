@@ -18,7 +18,7 @@
     "features": {
         "ghcr.io/devcontainers-extra/features/composer:1": {},
         "ghcr.io/robbert229/devcontainer-features/postgresql-client:1": {}
-    }
+    },
 
     // Use 'postCreateCommand' to run commands after the container is created.
     // Consider using postStartCommand if you prefer things to run each time container is started
