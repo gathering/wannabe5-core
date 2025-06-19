@@ -93,40 +93,42 @@
                 }
             }
         },
-        "/profile/search": {
+        "/profile": {
             "get": {
-                "operationId": "userProfile.search",
+                "operationId": "profile.index",
                 "description": "Search on UserProfiles",
-                "summary": "UserProfile.search",
+                "summary": "UserProfile.index",
                 "tags": [
                     "User Profile"
                 ],
                 "parameters": [
                     {
-                        "name": "name",
+                        "name": "filter[id]",
                         "in": "query",
-                        "description": "Firstname and/or lastname",
+                        "description": "Wannabe Profile ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "filter[user_id]",
+                        "in": "query",
+                        "description": "Wannabe User UUID",
                         "schema": {
                             "type": "string"
                         }
                     },
                     {
-                        "name": "email",
+                        "name": "filter[email]",
                         "in": "query",
                         "schema": {
                             "type": "string"
                         }
                     },
                     {
-                        "name": "phone",
+                        "name": "filter[phone]",
                         "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "nickname",
-                        "in": "query",
+                        "description": "In E.164 format. URLencode number first",
                         "schema": {
                             "type": "string"
                         }
@@ -150,6 +152,12 @@
                                 }
                             }
                         }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
@@ -181,7 +189,8 @@
                         "description": "Include additional models",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "userCrewHistory"
                     }
                 ],
                 "responses": {
@@ -202,6 +211,9 @@
                                 }
                             }
                         }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
                     },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
@@ -257,6 +269,9 @@
                                 }
                             }
                         }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
                     },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
@@ -516,25 +531,6 @@
                     }
                 }
             },
-            "ModelNotFoundException": {
-                "description": "Not found",
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "message": {
-                                    "type": "string",
-                                    "description": "Error overview."
-                                }
-                            },
-                            "required": [
-                                "message"
-                            ]
-                        }
-                    }
-                }
-            },
             "ValidationException": {
                 "description": "Validation error",
                 "content": {
@@ -560,6 +556,44 @@
                             "required": [
                                 "message",
                                 "errors"
+                            ]
+                        }
+                    }
+                }
+            },
+            "ModelNotFoundException": {
+                "description": "Not found",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "description": "Error overview."
+                                }
+                            },
+                            "required": [
+                                "message"
+                            ]
+                        }
+                    }
+                }
+            },
+            "AuthorizationException": {
+                "description": "Authorization error",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "description": "Error overview."
+                                }
+                            },
+                            "required": [
+                                "message"
                             ]
                         }
                     }

@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\User;
+use Database\Seeders\UserSeeder;
+use Illuminate\Testing\Fluent\AssertableJson;
 
 $profile_obj1 = [
     'nickname' => 'Harald69',
@@ -58,8 +60,16 @@ test('get default profile', function () {
     $response->assertStatus(200);
 });
 
-// Get profile with data filled
-test('get profile', function () use ($profile_obj1, $profile_json1) {
+test('get profile by user id', function () use ($profile_obj1, $profile_json1) {
+    $user = User::factory()->create();
+    $user->userProfile->update($profile_obj1);
+    $response = $this->asUser($user)->getJson("/api/profile/{$user->userProfile->user_id}");
+
+    $response->assertStatus(200);
+    $response->assertJson(['data' => $profile_json1]);
+});
+
+test('get profile by profile id', function () use ($profile_obj1, $profile_json1) {
     $user = User::factory()->create();
     $user->userProfile->update($profile_obj1);
     $response = $this->asUser($user)->getJson("/api/profile/{$user->userProfile->id}");
@@ -91,4 +101,59 @@ test('update profile with invalid data should fail validation', function () use 
     $response->assertInvalid(['nickname', 'birthdate', 'gender', 'phone', 'address.postcode']);
 
     $user->userProfile->crewHistory;
+});
+
+test('get profile by filter', function () use ($profile_obj1) {
+    $this->seed(UserSeeder::class);
+
+    $user = User::factory()->create();
+    $user->userProfile->update($profile_obj1);
+
+    $response = $this->asUser($user)->getJson("/api/profile?filter[id]={$user->userProfile->id}");
+    $response->assertStatus(200);
+    $response->assertJson(fn (AssertableJson $json) => $json->has('data', 1));
+
+    $response = $this->asUser($user)->getJson("/api/profile?filter[user_id]={$user->id}");
+    $response->assertStatus(200);
+    $response->assertJson(fn (AssertableJson $json) => $json->has('data', 1));
+
+    $response = $this->asUser($user)->getJson("/api/profile?filter[email]={$user->username}");
+    $response->assertStatus(200);
+    $response->assertJson(fn (AssertableJson $json) => $json->has('data', 1));
+
+    $phone = urlencode($profile_obj1['phone']);
+    $response = $this->asUser($user)->getJson("/api/profile?filter[phone]={$phone}");
+    $response->assertStatus(200);
+    $response->assertJson(fn (AssertableJson $json) => $json->has('data', 1));
+});
+
+test('invalid filters should fail', function () use ($profile_obj1) {
+    $this->seed(UserSeeder::class);
+
+    $user = User::factory()->create();
+    $user->userProfile->update($profile_obj1);
+
+    // No filter
+    $response = $this->asUser($user)->getJson('/api/profile');
+    $response->assertStatus(422);
+    $response->assertInvalid(['filter.id', 'filter.user_id', 'filter.email', 'filter.phone']);
+
+    // Incomplete email
+    $response = $this->asUser($user)->getJson('/api/profile?filter[email]=example.com');
+    $response->assertStatus(422);
+    $response->assertInvalid(['filter.email']);
+
+    // Random ID
+    $response = $this->asUser($user)->getJson('/api/profile?filter[id]=1337');
+    $response->assertStatus(404);
+});
+
+// Until we have better access control all other then self should fail
+test('get profile for user should give 403', function () {
+    $user1 = User::factory()->create();
+    $user2 = User::factory()->create();
+
+    $response = $this->asUser($user1)->getJson("/api/profile/{$user2->userProfile->id}");
+
+    $response->assertStatus(403);
 });
