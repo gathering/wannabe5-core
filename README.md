@@ -12,6 +12,7 @@ This can be used in `/docs/api` to test api endpoints
 ### Getting started with Local development
 
 Basic development setup requires 3 things
+
 1. Basic configuration (done via `.env` file)
 2. Running Laravel (the app) and Postgres (the database) containers
 3. Properly "initialised" Laravel app (mainly via Laravel CLI commands)
@@ -36,14 +37,14 @@ We use docker to run Laravel and Postgres in a stable and predictable way. If yo
 docker compose up
 ```
 
-> [!TIP]
-> `up` command by default starts container in a live mode so that you can see their output, and easily stop them by Ctrl/Cmd-c. Use `-d` (detach) flag to instead run them in the background and use the `logs` and `stop` commands to see output and stop them.
+> [!TIP] > `up` command by default starts container in a live mode so that you can see their output, and easily stop them by Ctrl/Cmd-c. Use `-d` (detach) flag to instead run them in the background and use the `logs` and `stop` commands to see output and stop them.
 
 #### 3. Initialise Laravel app
 
 If output from docker compose up (specifically the `devcontainer`) didn't show any significant errors you can probably try skipping straight to step 4. If not, this is how to manually get things up and running.
 
 First open a terminal inside the running `devcontainer` (it will fail if it is not running)
+
 ```bash
 docker compose exec devcontainer bash
 ```
@@ -62,9 +63,9 @@ If the automatic script fails, you can run individual commands manually (still i
 composer install
 php artisan key:generate
 php artisan migrate:fresh --seed
-php artisan test
 php artisan serve
 ```
+
 > [!TIP]
 > There are multiple ways to run commands inside these containers. The `exec <container name> bash` method is good if you want to do multiple commands, but for one off commands you can call `php artisan` directly, for example `docker compose exec devcontainer php artisan key:generate`
 
@@ -96,6 +97,7 @@ Start VS Code, run the Dev Containers: Open Folder in Container... command from 
 The dev-container automatically installs composer dependencies and does basic database initialisation (via the `./scripts/initialise-dev-container.sh`). See step 3 for more information on what to do if it fails.
 
 Your now ready to start service by running
+
 ```bash
 php artisan serve
 ```

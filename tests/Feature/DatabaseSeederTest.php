@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use App\Models\UserProfile;
 use Database\Seeders\DatabaseSeeder;
 
 test('db:seed works', function () {
@@ -26,4 +27,7 @@ test('db:seed works', function () {
     expect($user->userProfile->lastname)->toBeString()->toBe('Brukersen');
     expect($user->userProfile->nickname)->toBeString()->toBe('testbruker');
     expect($user->accessTokens->first()->token)->toBeString()->toBe('testbruker');
+
+    expect(User::all())->toHaveCount(11);
+    expect(UserProfile::all())->toHaveCount(11);
 });

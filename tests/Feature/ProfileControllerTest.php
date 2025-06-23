@@ -52,8 +52,7 @@ $invalid_profile_json1 = [
     ],
 ];
 
-// Get profile with no data
-test('get default profile', function () {
+test('get default profile with no data', function () {
     $user = User::factory()->create();
     $response = $this->asUser($user)->getJson("/api/profile/{$user->userProfile->id}");
 
@@ -78,8 +77,7 @@ test('get profile by profile id', function () use ($profile_obj1, $profile_json1
     $response->assertJson(['data' => $profile_json1]);
 });
 
-// Update profile, first from default state, then again with new data
-test('update profile', function () use ($profile_json1, $profile_json2) {
+test('update profile, first from default state, then again with new data', function () use ($profile_json1, $profile_json2) {
     $user = User::factory()->create();
 
     $response = $this->asUser($user)->putJson("/api/profile/{$user->userProfile->id}", $profile_json1);
@@ -99,8 +97,6 @@ test('update profile with invalid data should fail validation', function () use 
     $response = $this->asUser($user)->putJson("/api/profile/{$user->userProfile->id}", $invalid_profile_json1);
     $response->assertStatus(422);
     $response->assertInvalid(['nickname', 'birthdate', 'gender', 'phone', 'address.postcode']);
-
-    $user->userProfile->crewHistory;
 });
 
 test('get profile by filter', function () use ($profile_obj1) {
@@ -149,7 +145,7 @@ test('invalid filters should fail', function () use ($profile_obj1) {
 });
 
 // Until we have better access control all other then self should fail
-test('get profile for user should give 403', function () {
+test('get profile for diffrent user should give 403', function () {
     $user1 = User::factory()->create();
     $user2 = User::factory()->create();
 
