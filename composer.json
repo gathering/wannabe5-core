@@ -10,12 +10,14 @@
     "license": "GPL3",
     "require": {
         "php": "^8.2",
+        "brick/postcode": "^0.5.0",
         "dedoc/scramble": "^0.12.19",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "promphp/prometheus_client_php": "^2.14",
         "propaganistas/laravel-phone": "^6.0",
-        "robsontenorio/laravel-keycloak-guard": "^1.6"
+        "robsontenorio/laravel-keycloak-guard": "^1.6",
+        "spatie/laravel-query-builder": "^6.3"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

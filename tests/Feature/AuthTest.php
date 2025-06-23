@@ -73,6 +73,8 @@ test('that actingAsKeycloakUser works with existing user', function () {
 
     $this->actingAsKeycloakUser($user, [
         'email' => 'test121@example.com',
+        'given_name' => 'firstname',
+        'family_name' => 'lastname',
     ])
         ->getJson('/api/test')
         ->assertOk();
@@ -83,6 +85,10 @@ test('that actingAsKeycloakUser works with existing user', function () {
 
     // Check that username was updated to preferred_username
     expect($user->refresh()->username)->toBeString()->toBe('test121@example.com');
+
+    // Check that firstname and lastname was updated
+    expect($user->userProfile->firstname)->toBeString()->toBe('firstname');
+    expect($user->userProfile->lastname)->toBeString()->toBe('lastname');
 });
 
 test('that actingAsKeycloakUser works with non-existing user', function () {
@@ -117,7 +123,7 @@ test('profile created for new users', function () {
         ->assertOk();
 
     $user = User::first();
-    expect($user->profile->email)->toBeString()->toBe($user->username);
-    expect($user->profile->firstname)->toBeString();
-    expect($user->profile->lastname)->toBeString();
+    expect($user->userProfile->email)->toBeString()->toBe($user->username);
+    expect($user->userProfile->firstname)->toBeString();
+    expect($user->userProfile->lastname)->toBeString();
 });

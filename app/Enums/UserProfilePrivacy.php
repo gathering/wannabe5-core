@@ -4,8 +4,7 @@ namespace App\Enums;
 
 enum UserProfilePrivacy: int
 {
-    case PUBLIC = 0;
-    case CREW = 2;
-    case NEEDTOKNOW = 3;
-    case PRIVATE = 4;
+    case CREW = 2; // Everyone with access to events you are part of
+    case NEEDTOKNOW = 3; // Chiefs and Organizers of events you are part of
+    case PRIVATE = 4; // Only you
 }

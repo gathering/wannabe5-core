@@ -16,7 +16,7 @@ class UserProfilePrivacy extends Model
      * @var array
      */
     protected $fillable = [
-        'phone', 'address', 'birth', 'ice',
+        'phone', 'address', 'birthdate', 'ice',
     ];
 
     /**
@@ -27,7 +27,7 @@ class UserProfilePrivacy extends Model
     protected $attributes = [
         'phone' => 'crew',
         'address' => 'needtoknow',
-        'birth' => 'crew',
+        'birthdate' => 'crew',
         'ice' => 'needtoknow',
     ];
 

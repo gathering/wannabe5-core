@@ -121,13 +121,15 @@ class TokenGuard implements Guard
     /**
      * Get the ID for the currently authenticated user.
      *
-     * @return int|null
+     * @return string|null
      */
     public function id()
     {
         if ($user = $this->user()) {
             return $this->user()->id;
         }
+
+        return null;
     }
 
     /**

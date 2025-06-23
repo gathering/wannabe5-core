@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Models\UserProfile;
 use App\Services\TokenGuard;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
@@ -12,8 +13,10 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Hashing\BcryptHasher;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use KeycloakGuard\KeycloakGuard;
+use Ramsey\Uuid\Uuid;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -43,6 +46,17 @@ class AppServiceProvider extends ServiceProvider
 
             return new KeycloakGuard(new CustomUserProvider(new BcryptHasher, User::class), $request);
         });
+
+        Route::bind('profile', function (string $value) {
+            if (is_numeric($value)) {
+                return UserProfile::findOrFail($value);
+            } elseif (Uuid::isValid($value)) {
+                return UserProfile::where('user_id', $value)->firstOrFail();
+            }
+
+            return null;
+        });
+
         Scramble::configure()
             ->withDocumentTransformers(function (OpenApi $openApi) {
                 $openApi->components->securitySchemes['basic'] = SecurityScheme::http('basic');
@@ -54,6 +68,9 @@ class AppServiceProvider extends ServiceProvider
                 $openApi->security[] = new SecurityRequirement([
                     'bearer' => [],
                 ]);
+                $openApi->components->securitySchemes['basic']->description = 'Wannabe5 Core Access Token.  
+                    Use User UUID as username and token as password.';
+                $openApi->components->securitySchemes['bearer']->description = 'Wannabe5 Keycloak JWT';
             });
     }
 }

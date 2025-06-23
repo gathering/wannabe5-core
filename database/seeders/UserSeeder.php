@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\UserCrewHistory;
+use App\Models\UserProfile;
 use Illuminate\Database\Seeder;
 
 class UserSeeder extends Seeder
@@ -14,6 +16,9 @@ class UserSeeder extends Seeder
     {
         User::factory()
             ->count(10)
-            ->create();
+            ->has(UserProfile::factory()->state(function (array $attributes, User $user) {
+                return ['email' => $user->username];
+            })->has(UserCrewHistory::factory()->count(5)))
+            ->createQuietly(); // Do not create profiles when user is created, we do it
     }
 }
