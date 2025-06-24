@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Page;
 use Illuminate\Http\Request;
 
+use App\Http\Requests\PageRequest;
+use App\Http\Resources\PageResource;
+
 class PageController extends Controller
 {
     /**
@@ -14,54 +17,37 @@ class PageController extends Controller
      */
     public function index()
     {
-        $pages = Page::all();
-
         // Return the retrieved pages as a JSON response
-        return response()->json($pages);
+        return new PageResource(Page::all());
     }
 
     /**
-     * Returns the page with the given ID.
+     * Returns the page with the given ID. 
      *
      * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
+     * @return App\Http\Resources\PageResource
      */
     public function show($id)
     {
-        $page = Page::find($id);
-
-        if (! $page) {
-            return response()->json(['error' => 'Page not found'], 404);
-        }
-
-        // Return the retrieved page as a JSON response
-        return response()->json($page);
+        return new PageResource(Page::findOrFail($id));
     }
 
     /**
      * Validate and store a new page in the database.
-     *
-     * @return \Illuminate\Http\JsonResponse
+     * 
+     * @param App\Http\Requests\PageRequest $request;
+     * @return App\Http\Resources\PageResource
      */
-    public function store(Request $request)
+    public function store(PageRequest $request)
     {
-
-        // Validate incoming request data
-        $validatedData = $request->validate([
-            'title' => 'required', // Page title is required
-            'content' => 'required', // Page content is required
-            // 'event_id' => 'required|integer', // Event ID is required and must be an integer
-            'author_id' => 'uuid|required', // User ID is required and must be a UUID
-            'slug' => 'unique:posts|required|alpha_dash:ascii', // Slug is required and must contain only ASCII characters and underscores/dashes
-        ]);
+        $validatedData = $request->validated(); // Uses PageRequest validation
 
         // Create new page instance and fill it with validated data
         $page = new Page;
         $page->fill($validatedData);
         $page->save();
 
-        // Return JSON response indicating successful creation of page
-        return response()->json(['message' => 'Page created successfully'], 201);
+        return new PageResource($page);
     }
 
     /**
@@ -70,7 +56,7 @@ class PageController extends Controller
      * @param  App\Models\Page  $page
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, Page $page)
+    public function update(PageRequest $request, Page $page)
     {
         // Save current version
         $page->versions()->create([
@@ -82,10 +68,11 @@ class PageController extends Controller
         ]);
 
         // Update live page with new data from request
-        $page->update($request->only(['title', 'slug', 'content']));
+
+        $page->updateOrFail($request->safe()->only(['title', 'slug', 'content']));
 
         // Return updated page as JSON response
-        return response()->json($page);
+        return new PageResource($page);
     }
 
     /**
@@ -97,7 +84,6 @@ class PageController extends Controller
     public function destroy(Page $page)
     {
         $page->delete();
-
         return response()->json(['message' => 'Page deleted successfully'], 200);
     }
 }
