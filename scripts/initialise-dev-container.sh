@@ -45,6 +45,7 @@ function setup_laravel() {
     echo 'Trying to seed database, in a fail-safely manner'
     echo 'No migrations seem to have have been run, migrating and seeding database'
     php artisan migrate:fresh --seed
+    php artisan app:precommit
 }
 
 function main_setup() {

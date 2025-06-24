@@ -64,6 +64,7 @@ composer install
 php artisan key:generate
 php artisan migrate:fresh --seed
 php artisan serve
+php artisan app:precommit
 ```
 
 > [!TIP]
