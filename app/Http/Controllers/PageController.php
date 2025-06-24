@@ -23,12 +23,12 @@ class PageController extends Controller
     /**
      * Returns the page with the given ID.
      *
-     * @param  int  $id
+     * @param  App\Models\Page  $page
      * @return App\Http\Resources\PageResource
      */
-    public function show($id)
+    public function show(Page $page)
     {
-        return new PageResource(Page::findOrFail($id));
+        return new PageResource($page);
     }
 
     /**
