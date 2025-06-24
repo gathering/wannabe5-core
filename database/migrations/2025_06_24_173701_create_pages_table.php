@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('title');
             $table->string('slug')->unique();
             $table->text('content');
-            $table->timestamp('published_at')->nullable(); // Do we need this? 
+            $table->timestamp('published_at')->nullable(); // Do we need this?
             $table->uuid('author_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });

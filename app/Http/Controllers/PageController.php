@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Page;
-
 use Illuminate\Http\Request;
 
 class PageController extends Controller
@@ -31,7 +30,7 @@ class PageController extends Controller
     {
         $page = Page::find($id);
 
-        if (!$page) {
+        if (! $page) {
             return response()->json(['error' => 'Page not found'], 404);
         }
 
@@ -39,11 +38,9 @@ class PageController extends Controller
         return response()->json($page);
     }
 
-
     /**
      * Validate and store a new page in the database.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
@@ -53,13 +50,13 @@ class PageController extends Controller
         $validatedData = $request->validate([
             'title' => 'required', // Page title is required
             'content' => 'required', // Page content is required
-            #'event_id' => 'required|integer', // Event ID is required and must be an integer
+            // 'event_id' => 'required|integer', // Event ID is required and must be an integer
             'author_id' => 'uuid|required', // User ID is required and must be a UUID
             'slug' => 'unique:posts|required|alpha_dash:ascii', // Slug is required and must contain only ASCII characters and underscores/dashes
         ]);
 
         // Create new page instance and fill it with validated data
-        $page = new Page();
+        $page = new Page;
         $page->fill($validatedData);
         $page->save();
 
@@ -69,7 +66,7 @@ class PageController extends Controller
 
     /**
      * Update a page with new data and saves it as a new version.
-     * @param  \Illuminate\Http\Request  $request
+     *
      * @param  App\Models\Page  $page
      * @return \Illuminate\Http\JsonResponse
      */
@@ -100,6 +97,7 @@ class PageController extends Controller
     public function destroy(Page $page)
     {
         $page->delete();
+
         return response()->json(['message' => 'Page deleted successfully'], 200);
     }
 }
