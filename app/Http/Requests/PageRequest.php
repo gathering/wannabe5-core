@@ -4,8 +4,6 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-use Illuminate\Validation\Rule;
-
 class PageRequest extends FormRequest
 {
     /**
@@ -28,7 +26,7 @@ class PageRequest extends FormRequest
             'content' => 'required', // Page content is required
             // 'event_id' => 'required|integer', // Event ID is required and must be an integer
             'author_id' => 'uuid|required', // User ID is required and must be a UUID
-            'slug' => 'required|alpha_dash:ascii|unique:pages,slug,' . $this->slug . ',slug', // Slug is required and must contain only ASCII characters and underscores/dashes
+            'slug' => 'required|alpha_dash:ascii|unique:pages,slug,'.$this->slug.',slug', // Slug is required and must contain only ASCII characters and underscores/dashes
         ];
     }
 }

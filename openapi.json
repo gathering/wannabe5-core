@@ -102,11 +102,19 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Return the retrieved pages as a JSON response",
+                        "description": "Return the retrieved pages as a JSON response\n\n\n\n`PageResource`",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PageResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -127,62 +135,35 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
-                                    "content": {
-                                        "type": "string",
-                                        "description": "Page title is required"
-                                    },
-                                    "author_id": {
-                                        "type": "string",
-                                        "format": "uuid",
-                                        "description": "Page content is required\n'event_id' => 'required|integer',  Event ID is required and must be an integer"
-                                    },
-                                    "slug": {
-                                        "type": "string",
-                                        "description": "User ID is required and must be a UUID"
-                                    }
-                                },
-                                "required": [
-                                    "title",
-                                    "content",
-                                    "author_id",
-                                    "slug"
-                                ]
+                                "$ref": "#/components/schemas/PageRequest"
                             }
                         }
                     }
                 },
                 "responses": {
-                    "201": {
-                        "description": "Return JSON response indicating successful creation of page",
+                    "200": {
+                        "description": "`PageResource`",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "enum": [
-                                                "Page created successfully"
-                                            ]
+                                        "data": {
+                                            "$ref": "#/components/schemas/PageResource"
                                         }
                                     },
                                     "required": [
-                                        "message"
+                                        "data"
                                     ]
                                 }
                             }
                         }
                     },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
                     }
                 }
             }
@@ -206,31 +187,18 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Return the retrieved page as a JSON response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "string"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "",
+                        "description": "`PageResource`",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
-                                        "error": {
-                                            "type": "string",
-                                            "enum": [
-                                                "Page not found"
-                                            ]
+                                        "data": {
+                                            "$ref": "#/components/schemas/PageResource"
                                         }
                                     },
                                     "required": [
-                                        "error"
+                                        "data"
                                     ]
                                 }
                             }
@@ -260,13 +228,31 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PageRequest"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
-                        "description": "Return updated page as JSON response",
+                        "description": "Return updated page as JSON response\n\n\n\n`PageResource`",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Page"
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PageResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -276,6 +262,9 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
                     }
                 }
             },
@@ -535,7 +524,35 @@
             }
         },
         "schemas": {
-            "Page": {
+            "PageRequest": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "content": {
+                        "type": "string",
+                        "description": "Page title is required"
+                    },
+                    "author_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Page content is required\n'event_id' => 'required|integer',  Event ID is required and must be an integer"
+                    },
+                    "slug": {
+                        "type": "string",
+                        "description": "User ID is required and must be a UUID"
+                    }
+                },
+                "required": [
+                    "title",
+                    "content",
+                    "author_id",
+                    "slug"
+                ],
+                "title": "PageRequest"
+            },
+            "PageResource": {
                 "type": "object",
                 "properties": {
                     "id": {
@@ -584,7 +601,7 @@
                     "created_at",
                     "updated_at"
                 ],
-                "title": "Page"
+                "title": "PageResource"
             },
             "UserCrewHistoryResource": {
                 "type": "object",

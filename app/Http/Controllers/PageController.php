@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Page;
-use Illuminate\Http\Request;
-
 use App\Http\Requests\PageRequest;
 use App\Http\Resources\PageResource;
+use App\Models\Page;
+use Illuminate\Http\Request;
 
 class PageController extends Controller
 {
@@ -22,7 +21,7 @@ class PageController extends Controller
     }
 
     /**
-     * Returns the page with the given ID. 
+     * Returns the page with the given ID.
      *
      * @param  int  $id
      * @return App\Http\Resources\PageResource
@@ -34,8 +33,8 @@ class PageController extends Controller
 
     /**
      * Validate and store a new page in the database.
-     * 
-     * @param App\Http\Requests\PageRequest $request;
+     *
+     * @param  App\Http\Requests\PageRequest  $request;
      * @return App\Http\Resources\PageResource
      */
     public function store(PageRequest $request)
@@ -84,6 +83,7 @@ class PageController extends Controller
     public function destroy(Page $page)
     {
         $page->delete();
+
         return response()->json(['message' => 'Page deleted successfully'], 200);
     }
 }
