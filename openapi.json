@@ -168,7 +168,7 @@
                 }
             }
         },
-        "/page/{id}": {
+        "/page/{page}": {
             "get": {
                 "operationId": "page.show",
                 "summary": "Returns the page with the given ID",
@@ -177,9 +177,10 @@
                 ],
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "page",
                         "in": "path",
                         "required": true,
+                        "description": "The page ID",
                         "schema": {
                             "type": "integer"
                         }
@@ -204,13 +205,14 @@
                             }
                         }
                     },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
-            }
-        },
-        "/page/{page}": {
+            },
             "put": {
                 "operationId": "page.update",
                 "summary": "Update a page with new data and saves it as a new version",
