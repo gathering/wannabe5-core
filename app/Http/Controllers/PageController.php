@@ -33,7 +33,7 @@ class PageController extends Controller
     }
 
     /**
-     * Validate and store a new page in the database.
+     * Create a new page in the database.
      *
      * @param  App\Http\Requests\PageRequest  $request;
      * @return App\Http\Resources\PageResource
@@ -65,11 +65,12 @@ class PageController extends Controller
             'content' => $page->content,
             'version_number' => $page->versions()->count() + 1,
             'edited_by' => auth()->id(), // The user ID of the current authenticated user
+            'public' => $page->public,
         ]);
 
         // Update live page with new data from request
 
-        $page->updateOrFail($request->safe()->only(['title', 'slug', 'content']));
+        $page->updateOrFail($request->safe()->only(['title', 'slug', 'content', 'public']));
 
         // Return updated page as JSON response
         return new PageResource($page);

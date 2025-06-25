@@ -12,6 +12,7 @@ class PageVersion extends Model
         'title',
         'slug',
         'content',
+        'public',
         'version_number',
         'edited_by',
     ];

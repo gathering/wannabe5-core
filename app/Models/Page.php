@@ -15,6 +15,7 @@ class Page extends Model
         'event_id',
         'title',
         'slug',
+        'public',
         'content',
         'published_at',
         'author_id',

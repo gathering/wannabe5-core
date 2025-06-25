@@ -126,7 +126,7 @@
             },
             "post": {
                 "operationId": "page.store",
-                "summary": "Validate and store a new page in the database",
+                "summary": "Create a new page in the database",
                 "tags": [
                     "Page"
                 ],
@@ -548,9 +548,12 @@
                         "format": "uuid",
                         "description": "Page content is required\n'event_id' => 'required|integer',  Event ID is required and must be an integer"
                     },
-                    "slug": {
-                        "type": "string",
+                    "public": {
+                        "type": "boolean",
                         "description": "User ID is required and must be a UUID"
+                    },
+                    "slug": {
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -574,6 +577,9 @@
                         "type": "string"
                     },
                     "content": {
+                        "type": "string"
+                    },
+                    "public": {
                         "type": "string"
                     },
                     "published_at": {
@@ -605,6 +611,7 @@
                     "title",
                     "slug",
                     "content",
+                    "public",
                     "published_at",
                     "author_id",
                     "created_at",

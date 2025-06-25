@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('title');
             $table->string('slug')->unique();
             $table->text('content');
+            $table->boolean('public')->default(false); // The page is by default not public, but can be set to public if needed.
             $table->timestamp('published_at')->nullable(); // Do we need this?
             $table->uuid('author_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
