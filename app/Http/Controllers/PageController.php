@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PageRequest;
+use App\Http\Resources\PageCollection;
 use App\Http\Resources\PageResource;
 use App\Models\Page;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ class PageController extends Controller
     public function index()
     {
         // Return the retrieved pages as a JSON response
-        return new PageResource(Page::all());
+        return new PageCollection(Page::all());
     }
 
     /**
