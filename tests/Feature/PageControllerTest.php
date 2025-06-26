@@ -45,17 +45,26 @@ test('create new page', function () {
 });
 
 test('update page', function () {
-    $user = User::factory()->create();
+    $user1 = User::factory()->create();
 
-    $response = $this->asUser($user)->putJson('/api/page/1', [
+    $response = $this->asUser($user1)->postJson('/api/page/', [
+        'title' => 'test title',
+        'content' => 'test content',
+        'author_id' => $user1->id,
+        'slug' => 'test',
+    ]);
+
+    $user2 = User::factory()->create();
+
+    $response = $this->asUser($user2)->putJson('/api/page/1', [
         'title' => 'new title',
         'content' => 'new content',
-        'author_id' => $user->id,
+        'author_id' => $user2->id,
         'slug' => 'newslug',
     ]);
 
     $response->assertCreated()->assertJsonStructure(['data' => ['id', 'title', 'slug', 'content', 'author_id']]);
-    $response->assertJsonPath('data.author_id', $user->id);
+    $response->assertJsonPath('data.author_id', $user1->id);
     $this->assertDatabaseHas('page_version', [
         'page_id' => 1,
     ]);
