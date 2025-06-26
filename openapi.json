@@ -318,12 +318,23 @@
                 }
             }
         },
-        "/page_version": {
+        "/page/{page}/versions": {
             "get": {
-                "operationId": "page_version.index",
+                "operationId": "page.versions.index",
                 "summary": "Retrieves a collection of page versions",
                 "tags": [
                     "PageVersion"
+                ],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "path",
+                        "required": true,
+                        "description": "The page ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -344,40 +355,51 @@
                             }
                         }
                     },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
         },
-        "/page_version/{page_version}": {
+        "/page/{page}/versions/{version_number}": {
             "get": {
-                "operationId": "page_version.show",
+                "operationId": "page.versions.show",
                 "summary": "Display one page version",
                 "tags": [
                     "PageVersion"
                 ],
                 "parameters": [
                     {
-                        "name": "page_version",
+                        "name": "page",
                         "in": "path",
                         "required": true,
-                        "description": "The page version ID",
+                        "description": "The page ID",
                         "schema": {
                             "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "version_number",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "`PageVersionCollection`",
+                        "description": "`PageVersionResource`",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/components/schemas/PageVersionCollection"
+                                            "$ref": "#/components/schemas/PageVersionResource"
                                         }
                                     },
                                     "required": [

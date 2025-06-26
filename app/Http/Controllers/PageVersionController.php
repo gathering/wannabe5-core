@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\PageVersionCollection;
+use App\Http\Resources\PageVersionResource;
 use App\Models\Page;
 use App\Models\PageVersion;
 
@@ -35,8 +36,8 @@ class PageVersionController extends Controller
     /**
      * Display one page version
      */
-    public function show(PageVersion $page_version)
+    public function show(Page $page, string $version_number)
     {
-        return new PageVersionCollection($page_version);
+        return new PageVersionResource(PageVersion::where('page_id', $page->id)->where('version_number', $version_number)->get());
     }
 }
