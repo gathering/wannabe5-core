@@ -43,3 +43,20 @@ test('create new page', function () {
     $response->assertCreated()->assertJsonStructure(['data' => ['id', 'title', 'slug', 'content', 'author_id']]);
     $response->assertJsonPath('data.author_id', $user->id);
 });
+
+test('update page', function () {
+    $user = User::factory()->create();
+
+    $response = $this->asUser($user)->putJson('/api/page/1', [
+        'title' => 'new title',
+        'content' => 'new content',
+        'author_id' => $user->id,
+        'slug' => 'newslug',
+    ]);
+
+    $response->assertCreated()->assertJsonStructure(['data' => ['id', 'title', 'slug', 'content', 'author_id']]);
+    $response->assertJsonPath('data.author_id', $user->id);
+    $this->assertDatabaseHas('page_version', [
+        'page_id' => 1,
+    ]);
+});
