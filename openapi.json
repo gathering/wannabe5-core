@@ -318,6 +318,84 @@
                 }
             }
         },
+        "/page_version": {
+            "get": {
+                "operationId": "page_version.index",
+                "summary": "Retrieves a collection of page versions",
+                "tags": [
+                    "PageVersion"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Return a collection of page versions as a PageVersionCollection resource\n\n\n\n`PageVersionCollection`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PageVersionCollection"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/page_version/{page_version}": {
+            "get": {
+                "operationId": "page_version.show",
+                "summary": "Display one page version",
+                "tags": [
+                    "PageVersion"
+                ],
+                "parameters": [
+                    {
+                        "name": "page_version",
+                        "in": "path",
+                        "required": true,
+                        "description": "The page version ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`PageVersionCollection`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PageVersionCollection"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/profile": {
             "get": {
                 "operationId": "profile.index",
@@ -618,6 +696,72 @@
                     "updated_at"
                 ],
                 "title": "PageResource"
+            },
+            "PageVersionCollection": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/PageVersionResource"
+                },
+                "title": "PageVersionCollection"
+            },
+            "PageVersionResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "page_id": {
+                        "type": "integer"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "content": {
+                        "type": "string"
+                    },
+                    "public": {
+                        "type": "string"
+                    },
+                    "version_number": {
+                        "type": "integer"
+                    },
+                    "edited_by": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "page_id",
+                    "title",
+                    "slug",
+                    "content",
+                    "public",
+                    "version_number",
+                    "edited_by",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "PageVersionResource"
             },
             "UserCrewHistoryResource": {
                 "type": "object",

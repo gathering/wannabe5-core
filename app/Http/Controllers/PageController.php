@@ -70,7 +70,7 @@ class PageController extends Controller
 
         // Update live page with new data from request
 
-        $page->updateOrFail($request->safe()->only(['title', 'slug', 'content', 'public']));
+        $page->updateOrFail($request->safe()->only(['title', 'slug', 'content', 'public', 'author_id']));
 
         // Return updated page as JSON response
         return new PageResource($page);

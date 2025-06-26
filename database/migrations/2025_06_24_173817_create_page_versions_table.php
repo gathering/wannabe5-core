@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('page_id')->constrained('pages')->onDelete('cascade');
             $table->string('title');
             $table->string('slug');
-            $table->text('content');
+            $table->jsonb('content');
             $table->boolean('public');
             $table->unsignedInteger('version_number');
             $table->uuid('edited_by')->constrained('users')->onDelete('set null')->nullable();

@@ -23,7 +23,7 @@ class PageRequest extends FormRequest
     {
         return [
             'title' => 'required', // Page title is required
-            'content' => 'required', // Page content is required
+            'content' => 'json|required', // Page content is required
             // 'event_id' => 'required|integer', // Event ID is required and must be an integer
             'author_id' => 'uuid|required', // User ID is required and must be a UUID
             'public' => 'boolean',
