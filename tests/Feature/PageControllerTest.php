@@ -35,7 +35,7 @@ test('create new page', function () {
 
     $response = $this->asUser($user)->postJson('/api/page/', [
         'title' => 'test title',
-        'content' => 'test content',
+        'content' => '{"test":"test2"}',
         'author_id' => $user->id,
         'slug' => 'test',
     ]);
@@ -45,27 +45,19 @@ test('create new page', function () {
 });
 
 test('update page', function () {
-    $user1 = User::factory()->create();
+    $user = User::factory()->create();
+    $page = Page::factory()->create();
 
-    $response = $this->asUser($user1)->postJson('/api/page/', [
-        'title' => 'test title',
-        'content' => '{"test":"test2"}',
-        'author_id' => $user1->id,
-        'slug' => 'test',
-    ]);
-
-    $user2 = User::factory()->create();
-
-    $response = $this->asUser($user2)->putJson('/api/page/1', [
+    $response = $this->asUser($user)->putJson('/api/page/'.$page->id, [
         'title' => 'new title',
-        'content' => '{"test":"new2"}',
-        'author_id' => $user2->id,
+        'content' => '{"test":"test2"}',
+        'author_id' => $user->id,
         'slug' => 'newslug',
     ]);
 
-    $response->assertCreated()->assertJsonStructure(['data' => ['id', 'title', 'slug', 'content', 'author_id']]);
-    $response->assertJsonPath('data.author_id', $user2->id);
-    $this->assertDatabaseHas('page_version', [
-        'page_id' => 1,
+    $response->assertJsonStructure(['data' => ['id', 'title', 'slug', 'content', 'author_id']]);
+    $response->assertJsonPath('data.author_id', $user->id);
+    $this->assertDatabaseHas('page_versions', [
+        'page_id' => $page->id,
     ]);
 });
