@@ -19,7 +19,7 @@ class PageFactory extends Factory
     {
         return [
             'title' => $this->faker->sentence,
-            'content' => $this->faker->paragraph,
+            'content' => '{"content": "'.$this->faker->paragraph.'"}',
             'slug' => $this->faker->unique()->slug,
             'published_at' => now(),
             'author_id' => User::factory(),
