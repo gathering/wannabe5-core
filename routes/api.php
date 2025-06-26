@@ -19,15 +19,8 @@ Route::group(['middleware' => 'auth:api'], function () {
 
     Route::apiResources([
         'profile' => UserProfileController::class,
-    ]);
-
-    Route::apiResources([
         // TODO: Event based routing?
         'page' => PageController::class,
-    ]);
-
-    Route::apiResources([
-        // TODO: Event based routing?
-        'page_version' => PageVersionController::class,
+        'page.versions' => PageVersionController::class,
     ]);
 });
