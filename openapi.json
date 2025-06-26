@@ -93,6 +93,331 @@
                 }
             }
         },
+        "/page": {
+            "get": {
+                "operationId": "page.index",
+                "summary": "Retrieves all pages from the database and returns them as JSON",
+                "tags": [
+                    "Page"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Return the retrieved pages as a JSON response\n\n\n\n`PageCollection`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PageCollection"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "page.store",
+                "summary": "Create a new page in the database",
+                "tags": [
+                    "Page"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PageRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`PageResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PageResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/page/{page}": {
+            "get": {
+                "operationId": "page.show",
+                "summary": "Returns the page with the given ID",
+                "tags": [
+                    "Page"
+                ],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "path",
+                        "required": true,
+                        "description": "The page ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`PageResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PageResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "page.update",
+                "summary": "Update a page with new data and saves it as a new version",
+                "tags": [
+                    "Page"
+                ],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "path",
+                        "required": true,
+                        "description": "The page ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PageRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Return updated page as JSON response\n\n\n\n`PageResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PageResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "page.destroy",
+                "summary": "Deletes a page and its associated data from the database",
+                "tags": [
+                    "Page"
+                ],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "path",
+                        "required": true,
+                        "description": "The page ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Page deleted successfully"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/page/{page}/versions": {
+            "get": {
+                "operationId": "page.versions.index",
+                "summary": "Retrieves a collection of page versions",
+                "tags": [
+                    "PageVersion"
+                ],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "path",
+                        "required": true,
+                        "description": "The page ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Return a collection of page versions as a PageVersionCollection resource\n\n\n\n`PageVersionCollection`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PageVersionCollection"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/page/{page}/versions/{version_number}": {
+            "get": {
+                "operationId": "page.versions.show",
+                "summary": "Display one page version",
+                "tags": [
+                    "PageVersion"
+                ],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "path",
+                        "required": true,
+                        "description": "The page ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "version_number",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`PageVersionResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PageVersionResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/profile": {
             "get": {
                 "operationId": "profile.index",
@@ -301,6 +626,165 @@
             }
         },
         "schemas": {
+            "PageCollection": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/PageResource"
+                },
+                "title": "PageCollection"
+            },
+            "PageRequest": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "content": {
+                        "type": "string",
+                        "description": "Page title is required"
+                    },
+                    "author_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Page content is required\n'event_id' => 'required|integer',  Event ID is required and must be an integer"
+                    },
+                    "public": {
+                        "type": "boolean",
+                        "description": "User ID is required and must be a UUID"
+                    },
+                    "slug": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "title",
+                    "content",
+                    "author_id",
+                    "slug"
+                ],
+                "title": "PageRequest"
+            },
+            "PageResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "content": {
+                        "type": "string"
+                    },
+                    "public": {
+                        "type": "string"
+                    },
+                    "published_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "author_id": {
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "title",
+                    "slug",
+                    "content",
+                    "public",
+                    "published_at",
+                    "author_id",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "PageResource"
+            },
+            "PageVersionCollection": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/PageVersionResource"
+                },
+                "title": "PageVersionCollection"
+            },
+            "PageVersionResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "page_id": {
+                        "type": "integer"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "content": {
+                        "type": "string"
+                    },
+                    "public": {
+                        "type": "string"
+                    },
+                    "version_number": {
+                        "type": "integer"
+                    },
+                    "edited_by": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "page_id",
+                    "title",
+                    "slug",
+                    "content",
+                    "public",
+                    "version_number",
+                    "edited_by",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "PageVersionResource"
+            },
             "UserCrewHistoryResource": {
                 "type": "object",
                 "properties": {
