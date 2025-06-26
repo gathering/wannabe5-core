@@ -49,7 +49,7 @@ test('update page', function () {
 
     $response = $this->asUser($user1)->postJson('/api/page/', [
         'title' => 'test title',
-        'content' => 'test content',
+        'content' => '{"test":"test2"}',
         'author_id' => $user1->id,
         'slug' => 'test',
     ]);
@@ -58,13 +58,13 @@ test('update page', function () {
 
     $response = $this->asUser($user2)->putJson('/api/page/1', [
         'title' => 'new title',
-        'content' => 'new content',
+        'content' => '{"test":"new2"}',
         'author_id' => $user2->id,
         'slug' => 'newslug',
     ]);
 
     $response->assertCreated()->assertJsonStructure(['data' => ['id', 'title', 'slug', 'content', 'author_id']]);
-    $response->assertJsonPath('data.author_id', $user1->id);
+    $response->assertJsonPath('data.author_id', $user2->id);
     $this->assertDatabaseHas('page_version', [
         'page_id' => 1,
     ]);
