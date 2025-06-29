@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class PageRequest extends FormRequest
 {
@@ -23,11 +24,16 @@ class PageRequest extends FormRequest
     {
         return [
             'title' => 'required', // Page title is required
-            'content' => 'json|required', // Page content is required
+            'content' => 'required|json|', // Page content is required
             // 'event_id' => 'required|integer', // Event ID is required and must be an integer
-            'author_id' => 'uuid|required', // User ID is required and must be a UUID
+            'author_id' => 'required|uuid|exists:users,id', // User ID is required and must be a UUID
             'public' => 'boolean',
-            'slug' => 'required|alpha_dash:ascii|unique:pages,slug,'.$this->slug.',slug', // Slug is required and must contain only ASCII characters and underscores/dashes
+            // Slug is required and must contain only ASCII characters and underscores/dashes
+            'slug' => [
+                'required',
+                'alpha_dash:ascii',
+                Rule::unique('pages', 'slug')->ignore($this->page),
+            ],
         ];
     }
 }

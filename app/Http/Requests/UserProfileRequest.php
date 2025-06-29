@@ -26,7 +26,12 @@ class UserProfileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nickname' => 'required|string|max:50|unique:user_profiles,nickname,'.$this->profile->id.',id',
+            'nickname' => [
+                'required',
+                'string',
+                'max:50',
+                Rule::unique('user_profiles', 'nickname')->ignore($this->profile),
+            ],
             'birthdate' => [
                 'required',
                 Rule::date()->format('Y-m-d'),
