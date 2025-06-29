@@ -653,7 +653,8 @@
                         "description": "User ID is required and must be a UUID"
                     },
                     "slug": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Slug is required and must contain only ASCII characters and underscores/dashes"
                     }
                 },
                 "required": [

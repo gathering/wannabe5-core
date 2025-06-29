@@ -61,3 +61,38 @@ test('update page', function () {
         'page_id' => $page->id,
     ]);
 });
+
+test('fail validation on create page', function () {
+    $user = User::factory()->create();
+    $page = Page::factory()->create();
+
+    // Fail with non unique slug
+    $this->asUser($user)->postJson('/api/page/', [
+        'title' => 'test title',
+        'content' => '{"test":"test2"}',
+        'author_id' => $user->id,
+        'slug' => $page->slug,
+    ])->assertStatus(422)->assertInvalid(['slug']);
+
+    $this->asUser($user)->postJson('/api/page/', [
+        'title' => 'test title',
+        'content' => 'invalid json',
+        'author_id' => Str::uuid(), // invalid user
+        'slug' => 'invalid slug',
+    ])->assertStatus(422)->assertInvalid(['content', 'author_id', 'slug']);
+});
+
+test('get page versions', function () {
+    $user = User::factory()->create();
+    $page = Page::factory()->create();
+
+    $response = $this->asUser($user)->getJson("/api/page/{$page->id}/versions");
+    $response->assertStatus(200)->assertJsonCount(0, 'data');
+
+    // Update page to create a new version
+    $this->asUser($user)->putJson('/api/page/'.$page->id, $page->only(['title', 'content', 'author_id', 'slug']));
+
+    // version_number should now be 1
+    $response = $this->asUser($user)->getJson("/api/page/{$page->id}/versions");
+    $response->assertStatus(200)->assertJsonCount(1, 'data')->assertJsonPath('data.0.version_number', 1);
+});
