@@ -14,6 +14,7 @@ jobs:
           fetch-depth: 1
       - name: Setup database using docker
         run: |
+          cp .env.ci.testing .env
           docker compose -f compose.yml up db -d
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -25,7 +26,6 @@ jobs:
         run: composer install -n --prefer-dist
       - name: Prepare Laravel Application
         run: |
-          cp .env.ci.testing .env
           php artisan key:generate
           php artisan migrate --force -n
       - name: Run tests
