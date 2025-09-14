@@ -15,9 +15,6 @@ services:
     image: postgres
     ports:
       - 127.0.0.1:5432:5432
-    environment:
-      POSTGRES_USER: laravel
-      POSTGRES_DB: wannabe5
-      POSTGRES_PASSWORD: mydevelopmentexample
+    env_file: .env
     volumes:
       - ./scripts/create-test-db.sh:/docker-entrypoint-initdb.d/create-test-db.sh
