@@ -34,18 +34,19 @@ function setup_laravel() {
     is_fresh_database
     fresh_database=$?
 
-    if [[ $fresh_database > 0 ]]; then
-        echo 'Database is not fresh, skipping application key generation and seeding'
-        return 1
+    if [[ $fresh_database == 0 ]]; then
+        echo 'Generating application key'
+        php artisan key:generate
+
+        echo 'No migrations seem to have been run, migrating and seeding database'
+        php artisan migrate:fresh --seed
+        php artisan app:precommit
+    else
+        echo 'Database already migrated — applying pending migrations + local fixtures'
+        php artisan migrate --force || true
+        # Idempotent local fixtures (events/pages/crews/attrs). Survives recreate when PG volume persists.
+        php artisan db:seed --class=Database\\Seeders\\LocalStackSeeder --force || true
     fi
-
-    echo 'Generating application key'
-    php artisan key:generate
-
-    echo 'Trying to seed database, in a fail-safely manner'
-    echo 'No migrations seem to have have been run, migrating and seeding database'
-    php artisan migrate:fresh --seed
-    php artisan app:precommit
 }
 
 function main_setup() {

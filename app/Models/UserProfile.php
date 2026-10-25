@@ -13,7 +13,7 @@ class UserProfile extends Model
     use HasFactory;
 
     protected $fillable = [
-        'nickname', 'birthdate', 'phone', 'gender',
+        'firstname', 'lastname', 'nickname', 'email', 'birthdate', 'phone', 'gender',
         'streetaddress', 'town', 'postcode', 'countrycode',
     ];
 

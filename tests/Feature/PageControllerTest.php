@@ -96,3 +96,12 @@ test('get page versions', function () {
     $response = $this->asUser($user)->getJson("/api/page/{$page->id}/versions");
     $response->assertStatus(200)->assertJsonCount(1, 'data')->assertJsonPath('data.0.version_number', 1);
 });
+
+test('page version writes are not exposed on core baseline routes', function () {
+    $user = User::factory()->create();
+    $page = Page::factory()->create();
+
+    $this->asUser($user)->postJson("/api/page/{$page->id}/versions", [])->assertStatus(405);
+    $this->asUser($user)->putJson("/api/page/{$page->id}/versions/1", [])->assertStatus(405);
+    $this->asUser($user)->deleteJson("/api/page/{$page->id}/versions/1")->assertStatus(405);
+});

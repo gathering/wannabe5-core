@@ -21,6 +21,7 @@
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
+        "larastan/larastan": "^3.0",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.22",
         "laravel/telescope": "^5.7",
@@ -64,6 +65,21 @@
         "test": [
             "@php artisan config:clear --ansi",
             "@php artisan test"
+        ],
+        "test:contracts": [
+            "@php artisan test tests/Feature/CompatContractTest.php tests/Feature/BackendCompatProxyTest.php tests/Feature/BackendCompatWorkflowDispatchTest.php tests/Feature/CompatSurfaceCoverageTest.php"
+        ],
+        "check:openapi": [
+            "bash scripts/check-openapi.sh"
+        ],
+        "check:parity": [
+            "@php scripts/check-parity-matrix.php"
+        ],
+        "test:static": [
+            "@php vendor/bin/phpstan analyse --memory-limit=1G"
+        ],
+        "test:lint": [
+            "@php vendor/bin/pint --test"
         ]
     },
     "extra": {

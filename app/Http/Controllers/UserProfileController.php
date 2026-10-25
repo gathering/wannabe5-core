@@ -72,8 +72,10 @@ class UserProfileController extends Controller
     #[QueryParameter('include', description: 'Include additional models', type: 'string', example: 'userCrewHistory')]
     public function show(Request $request, UserProfile $profile)
     {
-        $include = $request->string('include');
-        $include = collect(explode(',', $include))->flip()->only(['userCrewHistory']);
+        $include = array_values(array_intersect(
+            explode(',', (string) $request->query('include', '')),
+            ['userCrewHistory']
+        ));
         $profile->loadMissing($include);
 
         Gate::authorize('view', $profile);
@@ -90,11 +92,11 @@ class UserProfileController extends Controller
      */
     public function update(UserProfileRequest $request, UserProfile $profile)
     {
+        Gate::authorize('update', $profile);
+
         $validated = $request->safe();
         $profile->update($validated->only(['nickname', 'birthdate', 'phone', 'gender']));
         $profile->update($validated->address);
-
-        Gate::authorize('update', $profile);
 
         return new UserProfileResource($profile);
     }

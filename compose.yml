@@ -9,7 +9,18 @@ services:
     volumes:
       # Matches `workspaceFolder` setting in devcontainer.json
       - .:/workspace:cached
-    command: ./scripts/initialise-dev-container.sh php artisan serve
+    # Bind 0.0.0.0 so host port mapping can reach artisan serve.
+    command: ./scripts/initialise-dev-container.sh php artisan serve --host=0.0.0.0 --port=8000
+    depends_on:
+      - db
+    env_file: .env
+    networks:
+      - default
+      # Reach Keycloak via docker network alias keycloak.wannabe5.gathering.org
+      - wannabe
+    extra_hosts:
+      - "keycloak.wannabe5.gathering.org:host-gateway"
+      - "wannabe5.gathering.org:host-gateway"
 
   db:
     image: postgres
@@ -17,4 +28,15 @@ services:
       - 127.0.0.1:5432:5432
     env_file: .env
     volumes:
+      - wannabe5_core_pgdata:/var/lib/postgresql/data
       - ./scripts/create-test-db.sh:/docker-entrypoint-initdb.d/create-test-db.sh
+    networks:
+      - default
+
+networks:
+  wannabe:
+    name: wannabe
+    external: true
+
+volumes:
+  wannabe5_core_pgdata:

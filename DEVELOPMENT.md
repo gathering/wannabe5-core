@@ -1,44 +1,73 @@
-
 # How to develop on Wannabe5-Core
+
+Doc index: [`docs/README.md`](docs/README.md). Agent rules: [`AGENTS.md`](AGENTS.md).
+
+## Local stack (core + frontend + Keycloak)
+
+Uses the existing Keycloak service from `wannabe5-backend/microservices/keycloak`:
+
+```bash
+make stack-up       # Keycloak + core API
+make frontend-up    # separate terminal — frontend against core
+```
+
+Details: [`docs/development/local-stack.md`](docs/development/local-stack.md).
 
 ## Configure pre-commits
 
-Run the following command to add your pre-commit config:
 ```bash
-php artisan app:precommit 
+php artisan app:precommit
 ```
 
 ## Linting
 
-We use Laravel Lint, and your pull-request will not be accepted by our project automations without running this before commiting. 
-
-If the pre-commit (Note: Does not exist yet!) fails, run this before commiting:
+PRs must pass Pint. If hooks fail:
 
 ```bash
 ./vendor/bin/pint
 ```
 
-## Generate OpenAPI documentation
+## Full readiness checks
 
-This needs to be done before a pull-request is approved.
+Run before opening a pull request:
+
+```bash
+composer run-script test:lint
+composer run-script test:static
+composer test
+composer run-script test:contracts
+composer run-script check:parity
+composer run-script check:openapi
+```
+
+Frontend path smoke (subset):
+
+```bash
+php artisan test --filter=FrontendPathSmokeTest
+```
+
+## Generate OpenAPI documentation
 
 ```bash
 php artisan scramble:export
+# or
+composer run-script check:openapi
 ```
+
+## Native domains vs compatibility adapter
+
+- Prefer implementing behavior on native `/api/{service}/...` controllers.
+- Keep `/api/ms/{service}/...` contracts green unless retiring an adapter route (update matrix + contract tests).
+- Frontend cutover is env-only; see [`docs/parity/frontend-cutover.md`](docs/parity/frontend-cutover.md).
 
 ## Creating a new model
 
-We want to focus on using Resources, Requests and lean Controllers. Place validation in Requests and create Resources for all return objects. 
+Prefer Resources, Requests, and lean Controllers. Put validation in Requests and return Resources.
 
 ```bash
 php artisan make:request <ModelName>Request
 php artisan make:resource <ModelName>Resource
-```
-
-Refer to the Laravel documentation on how to use [Resources](https://laravel.com/docs/12.x/eloquent-resources) and [Requests](https://laravel.com/docs/12.x/validation#form-request-validation) in your controllers.
-
-Also consider creating a Factory to be able to seed the model.
-
-```bash
 php artisan make:factory <ModelName>Factory
 ```
+
+Laravel docs: [Resources](https://laravel.com/docs/12.x/eloquent-resources), [Requests](https://laravel.com/docs/12.x/validation#form-request-validation).
