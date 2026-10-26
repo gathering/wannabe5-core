@@ -178,46 +178,86 @@ class LocalStackSeeder extends Seeder
 
         // Keycloak testbruker UUID — create if missing so attribute seed is not skipped
         // when make e2e only runs LocalStackSeeder (not DatabaseSeeder).
-        $userId = 'eaf9efc2-adbb-4b27-b5a9-f6c60197ab56';
+        $adminId = 'eaf9efc2-adbb-4b27-b5a9-f6c60197ab56';
+        $this->seedUserWithAttributes(
+            $adminId,
+            'testbruker@example.com',
+            [
+                'firstname' => 'Test',
+                'lastname' => 'Brukersen',
+                'nickname' => 'testbruker',
+            ],
+            // Mirrors wannabe5-backend access AttributeSeeder for testbruker (admin-ish *).
+            [
+                'access:owner',
+                'access:reader',
+                'com:admin',
+                'com:client',
+                'com:manager',
+                'crew:applications:owner',
+                'crew:applications:manager',
+                'crew:manager',
+                'crew:member',
+                'crew:owner',
+                'crew:team:member',
+                'crew:team:owner',
+                'event:member',
+                'event:owner',
+                'event:reader',
+                'list:manager',
+                'list:owner',
+                'list:reader',
+                'profile:image:manager',
+                'profile:owner',
+                'user:owner',
+            ],
+            adminWildcard: true
+        );
+
+        // Normal (non-admin) user for Playwright role coverage. Keycloak user is
+        // ensured by e2e/playwright/scripts/ensure-e2e-users.sh (and realm.json).
+        $normalId = 'd7a57211-2187-44d2-a9bd-e5deba8fe5ae';
+        $this->seedUserWithAttributes(
+            $normalId,
+            'normalbruker@example.com',
+            [
+                'firstname' => 'Normal',
+                'lastname' => 'Bruker',
+                'nickname' => 'normalbruker',
+            ],
+            [
+                'profile:owner',
+                'user:owner',
+            ],
+            adminWildcard: false
+        );
+    }
+
+    /**
+     * @param  list<string>  $attributeKeys
+     * @param  array{firstname: string, lastname: string, nickname: string}  $profile
+     */
+    private function seedUserWithAttributes(
+        string $userId,
+        string $username,
+        array $profile,
+        array $attributeKeys,
+        bool $adminWildcard
+    ): void {
         $user = User::query()->firstOrCreate(
             ['id' => $userId],
             [
-                'username' => 'testbruker@example.com',
+                'username' => $username,
                 'type' => 'user',
             ]
         );
 
         $user->userProfile?->update([
-            'firstname' => 'Test',
-            'lastname' => 'Brukersen',
-            'nickname' => 'testbruker',
+            'firstname' => $profile['firstname'],
+            'lastname' => $profile['lastname'],
+            'nickname' => $profile['nickname'],
             'email' => $user->username,
         ]);
-
-        // Mirrors wannabe5-backend access AttributeSeeder for testbruker (admin-ish *).
-        $attributeKeys = [
-            'access:owner',
-            'access:reader',
-            'com:admin',
-            'com:client',
-            'com:manager',
-            'crew:applications:owner',
-            'crew:applications:manager',
-            'crew:manager',
-            'crew:member',
-            'crew:owner',
-            'crew:team:member',
-            'crew:team:owner',
-            'event:member',
-            'event:owner',
-            'event:reader',
-            'list:manager',
-            'list:owner',
-            'list:reader',
-            'profile:image:manager',
-            'profile:owner',
-            'user:owner',
-        ];
 
         foreach ($attributeKeys as $key) {
             AccessAttributeType::query()->firstOrCreate(
@@ -229,6 +269,13 @@ class LocalStackSeeder extends Seeder
                 ]
             );
 
+            $value = match (true) {
+                $key === 'user:owner' => [$userId],
+                $key === 'profile:owner' && ! $adminWildcard => ['*'],
+                $adminWildcard => ['*'],
+                default => ['*'],
+            };
+
             AccessAttribute::query()->updateOrCreate(
                 [
                     'user_id' => $userId,
@@ -236,7 +283,7 @@ class LocalStackSeeder extends Seeder
                     'source' => 'local-seed',
                 ],
                 [
-                    'value' => $key === 'user:owner' ? [$userId] : ['*'],
+                    'value' => $value,
                 ]
             );
         }

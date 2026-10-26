@@ -46,6 +46,14 @@ Frontend path smoke (subset):
 php artisan test --filter=FrontendPathSmokeTest
 ```
 
+Browser e2e (Playwright in Docker; needs `make stack-up` + frontend on :3000):
+
+```bash
+make e2e-playwright
+```
+
+New user/admin-visible pages must extend `e2e/playwright/` coverage (see `AGENTS.md` and `docs/testing/e2e.md`).
+
 ## Generate OpenAPI documentation
 
 ```bash

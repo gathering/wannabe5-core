@@ -40,7 +40,8 @@ Then open (use these hostnames — not `localhost` — so OIDC cookies/redirects
 | Core API | http://wannabe5.gathering.org:8000/api |
 | Keycloak | http://keycloak.wannabe5.gathering.org:8080 (never `localhost:8080`) |
 | Keycloak admin | admin / `Wannabe5-dev` (from keycloak `.env.example`) |
-| Keycloak login | `testbruker` / `testbruker` (same UUID as DB seed — correct account) |
+| Keycloak login (admin) | `testbruker` / `testbruker` (same UUID as DB seed) |
+| Keycloak login (normal) | `normalbruker` / `normalbruker` (Playwright role coverage; UUID in LocalStackSeeder) |
 | Core API token (OpenAPI) | uuid `eaf9efc2-…` / token `testbruker` (DB seed) |
 
 ## What the Makefile configures
@@ -80,7 +81,8 @@ Seeded Keycloak user: **`testbruker` / `testbruker`**.
 make help
 make stack-status
 make core-seed          # re-apply DatabaseSeeder + LocalStackSeeder
-make e2e                # seed + black-box e2e (OIDC → frontend/API)
+make e2e                # seed + black-box HTTP e2e (OIDC → frontend/API)
+make e2e-playwright     # Playwright browser e2e in Docker (see docs/testing/e2e.md)
 make keycloak-down
 make core-logs
 make stack-down

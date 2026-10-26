@@ -35,6 +35,19 @@ composer run-script check:parity
 composer run-script check:openapi
 ```
 
+When changing frontend-facing routes, auth/session behavior, or user/admin page surfaces, also run browser e2e (requires local stack):
+
+```bash
+make e2e-playwright
+```
+
+## Testing Rules For New Features
+
+- New native API behavior needs feature tests under `tests/Feature` (and contract/parity updates when `/api/ms` or matrix rows change).
+- New cross-domain workflow listeners/jobs need `*WorkflowDispatchTest` / domain service coverage (see Event Workflow Rules).
+- **New user-facing pages, admin surfaces, or browser flows must get Playwright coverage** under `e2e/playwright/` (update `fixtures/pages-map.md`, `helpers/pages.ts`, and add/adjust specs). Do not ship UI-facing work with only HTTP smoke.
+- Prefer extending the role page maps (guest / `normalbruker` / `testbruker`) over one-off scripts.
+
 ## API Parity Rules
 
 - Prefer native `/api/{service}` implementations for new work; keep `/api/ms/{service}` behavior intact unless intentionally retiring it.
@@ -55,4 +68,5 @@ When changing API behavior, update:
 - `openapi.json` (via `composer run-script check:openapi`),
 - `docs/parity/matrix.md`,
 - relevant docs under `docs/api`, `docs/testing`, `docs/architecture`, or `docs/parity`,
-- `docs/parity/frontend-cutover.md` / `docs/testing/e2e.md` when frontend-facing paths or response contracts change.
+- `docs/parity/frontend-cutover.md` / `docs/testing/e2e.md` when frontend-facing paths or response contracts change,
+- `e2e/playwright/fixtures/pages-map.md` when adding or renaming pages a user/admin can open.

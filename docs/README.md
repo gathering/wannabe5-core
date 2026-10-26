@@ -21,7 +21,7 @@ Index of contributor docs for `wannabe5-core`.
 ## Testing
 
 - `docs/testing/harness.md` — test layers and composer scripts
-- `docs/testing/e2e.md` — frontend path smoke + browser e2e plan
+- `docs/testing/e2e.md` — HTTP e2e + Playwright Docker browser e2e
 
 ## Agent / PR Guidance
 

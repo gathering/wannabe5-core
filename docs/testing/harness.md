@@ -32,12 +32,15 @@
 
 Related docs: `docs/testing/e2e.md`, `docs/parity/frontend-cutover.md`.
 
-Local-stack black-box e2e: `make e2e` (see `docs/testing/e2e.md`). Optional Playwright remains in `wannabe5-frontend`.
+Local-stack black-box HTTP e2e: `make e2e`. Browser Playwright e2e (Docker): `make e2e-playwright` — see `docs/testing/e2e.md` and `e2e/playwright/`.
+
+**New features that add or change user/admin-visible pages must extend Playwright coverage** (`e2e/playwright/fixtures/pages-map.md` + specs). See `AGENTS.md`.
 
 ## Commands
 
 ```bash
 make e2e
+make e2e-playwright
 composer test
 composer run-script test:contracts
 composer run-script test:lint

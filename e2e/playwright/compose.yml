@@ -1,0 +1,74 @@
+# Dedicated Playwright e2e stack (frontend + browser runner).
+# Prerequisites: `make stack-up` (Keycloak + core on docker network `wannabe`).
+#
+#   make e2e-playwright-up     # start frontend container for e2e
+#   make e2e-playwright        # seed + ensure users + run Playwright in Docker
+#
+# Hostnames match /etc/hosts + OIDC (wannabe5.gathering.org, keycloak…).
+
+name: wannabe5-e2e-playwright
+
+services:
+  frontend:
+    image: node:24-bookworm
+    working_dir: /app
+    volumes:
+      - ${FRONTEND_ROOT:-../../../wannabe5-frontend}:/app
+      - wannabe5_e2e_frontend_node_modules:/app/node_modules
+    env_file:
+      - .env.frontend
+    environment:
+      BASE_URL: http://wannabe5.gathering.org:3000
+      API_URL: /api
+      # Reach core published on the host (compose.yml binds :8000).
+      API_INTERNAL_URL: http://wannabe5.gathering.org:8000/api
+      API_PROXY_DESTINATION: http://wannabe5.gathering.org:8000/api
+      HOSTNAME: 0.0.0.0
+      PORT: "3000"
+    command: >
+      bash -lc "corepack enable &&
+      pnpm install &&
+      pnpm dev -H 0.0.0.0 -p 3000"
+    ports:
+      - "3000:3000"
+    extra_hosts:
+      - "wannabe5.gathering.org:host-gateway"
+      - "keycloak.wannabe5.gathering.org:host-gateway"
+    networks:
+      - wannabe
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/liveness').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 40s
+
+  playwright:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # Host network so Chromium can use the same OIDC hostnames as a real browser
+    # (/etc/hosts → Keycloak :8080, frontend :3000, core :8000).
+    network_mode: host
+    ipc: host
+    environment:
+      BASE_URL: http://wannabe5.gathering.org:3000
+      CORE_URL: http://wannabe5.gathering.org:8000
+      E2E_EVENT_SLUG: tg26
+      CI: ${CI:-}
+    volumes:
+      - .:/e2e
+      - wannabe5_e2e_playwright_node_modules:/e2e/node_modules
+    working_dir: /e2e
+    # No depends_on: tests may target host `make frontend-up` or `make e2e-playwright-up`.
+    profiles:
+      - run
+
+networks:
+  wannabe:
+    name: wannabe
+    external: true
+
+volumes:
+  wannabe5_e2e_frontend_node_modules:
+  wannabe5_e2e_playwright_node_modules:

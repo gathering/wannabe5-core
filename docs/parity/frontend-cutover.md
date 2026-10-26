@@ -48,7 +48,7 @@ Frontend does **not** call `/api/ms/...`.
 
 1. Path smoke in core — **done** (`FrontendPathSmokeTest`).
 2. Local dual-run with env pointing at core — **manual**.
-3. Browser e2e in frontend repo — **pending**.
+3. Browser Playwright e2e in core (`make e2e-playwright`, `e2e/playwright/`) — **PoC + role page maps**.
 4. Deprecate legacy mesh / `/api/ms` when unused — **later**.
 
 ## Still required at runtime (not frontend code)
