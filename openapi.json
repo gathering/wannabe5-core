@@ -8474,157 +8474,33 @@
         },
         "schemas": {
             "AccessAttribute": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "integer"
-                    },
-                    "created_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
-                    },
-                    "updated_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
-                    },
-                    "source": {
-                        "type": "string"
-                    },
-                    "user_id": {
-                        "type": "string"
-                    },
-                    "key": {
-                        "type": "string"
-                    },
-                    "value": {
-                        "type": "array",
-                        "items": {}
-                    }
+                "type": "array",
+                "items": {
+                    "type": "string"
                 },
-                "required": [
-                    "id",
-                    "created_at",
-                    "updated_at",
-                    "source",
-                    "user_id",
-                    "key",
-                    "value"
-                ],
+                "minItems": 0,
+                "maxItems": 0,
+                "additionalItems": false,
                 "title": "AccessAttribute"
             },
             "AccessAttributeType": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "integer"
-                    },
-                    "created_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
-                    },
-                    "updated_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
-                    },
-                    "source": {
-                        "type": "string"
-                    },
-                    "key": {
-                        "type": "string"
-                    },
-                    "summary": {
-                        "type": "string"
-                    },
-                    "description": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
-                    }
+                "type": "array",
+                "items": {
+                    "type": "string"
                 },
-                "required": [
-                    "id",
-                    "created_at",
-                    "updated_at",
-                    "source",
-                    "key",
-                    "summary",
-                    "description"
-                ],
+                "minItems": 0,
+                "maxItems": 0,
+                "additionalItems": false,
                 "title": "AccessAttributeType"
             },
             "CrewEvent": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "integer"
-                    },
-                    "created_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
-                    },
-                    "updated_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "slug": {
-                        "type": "string"
-                    },
-                    "location": {
-                        "type": "string"
-                    },
-                    "start_date": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "end_date": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "visible": {
-                        "type": "boolean"
-                    },
-                    "active": {
-                        "type": "boolean"
-                    },
-                    "applications_open": {
-                        "type": "boolean"
-                    }
+                "type": "array",
+                "items": {
+                    "type": "string"
                 },
-                "required": [
-                    "id",
-                    "created_at",
-                    "updated_at",
-                    "name",
-                    "slug",
-                    "location",
-                    "start_date",
-                    "end_date",
-                    "visible",
-                    "active",
-                    "applications_open"
-                ],
+                "minItems": 0,
+                "maxItems": 0,
+                "additionalItems": false,
                 "title": "CrewEvent"
             },
             "PageCollection": {
@@ -8667,58 +8543,13 @@
                 "title": "PageRequest"
             },
             "PageResource": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "integer"
-                    },
-                    "title": {
-                        "type": "string"
-                    },
-                    "slug": {
-                        "type": "string"
-                    },
-                    "content": {
-                        "type": "string"
-                    },
-                    "public": {
-                        "type": "string"
-                    },
-                    "published_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
-                    },
-                    "author_id": {
-                        "type": "string"
-                    },
-                    "created_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
-                    },
-                    "updated_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
-                    }
+                "type": "array",
+                "items": {
+                    "type": "string"
                 },
-                "required": [
-                    "id",
-                    "title",
-                    "slug",
-                    "content",
-                    "public",
-                    "published_at",
-                    "author_id",
-                    "created_at",
-                    "updated_at"
-                ],
+                "minItems": 0,
+                "maxItems": 0,
+                "additionalItems": false,
                 "title": "PageResource"
             },
             "PageVersionCollection": {
@@ -8729,185 +8560,33 @@
                 "title": "PageVersionCollection"
             },
             "PageVersionResource": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "integer"
-                    },
-                    "page_id": {
-                        "type": "integer"
-                    },
-                    "title": {
-                        "type": "string"
-                    },
-                    "slug": {
-                        "type": "string"
-                    },
-                    "content": {
-                        "type": "string"
-                    },
-                    "public": {
-                        "type": "string"
-                    },
-                    "version_number": {
-                        "type": "integer"
-                    },
-                    "edited_by": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
-                    },
-                    "created_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
-                    },
-                    "updated_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
-                    }
+                "type": "array",
+                "items": {
+                    "type": "string"
                 },
-                "required": [
-                    "id",
-                    "page_id",
-                    "title",
-                    "slug",
-                    "content",
-                    "public",
-                    "version_number",
-                    "edited_by",
-                    "created_at",
-                    "updated_at"
-                ],
+                "minItems": 0,
+                "maxItems": 0,
+                "additionalItems": false,
                 "title": "PageVersionResource"
             },
             "UserCrewHistoryResource": {
-                "type": "object",
-                "properties": {
-                    "event_name": {
-                        "type": "string"
-                    },
-                    "crew_name": {
-                        "type": "string"
-                    },
-                    "title": {
-                        "type": "string"
-                    }
+                "type": "array",
+                "items": {
+                    "type": "string"
                 },
-                "required": [
-                    "event_name",
-                    "crew_name",
-                    "title"
-                ],
+                "minItems": 0,
+                "maxItems": 0,
+                "additionalItems": false,
                 "title": "UserCrewHistoryResource"
             },
             "UserProfile": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "integer"
-                    },
-                    "user_id": {
-                        "type": "string"
-                    },
-                    "firstname": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
-                    },
-                    "lastname": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
-                    },
-                    "nickname": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
-                    },
-                    "email": {
-                        "type": "string"
-                    },
-                    "birthdate": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
-                    },
-                    "gender": {
-                        "$ref": "#/components/schemas/UserProfileGender"
-                    },
-                    "phone": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
-                    },
-                    "streetaddress": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
-                    },
-                    "postcode": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
-                    },
-                    "town": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
-                    },
-                    "countrycode": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
-                    },
-                    "created_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
-                    },
-                    "updated_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
-                    }
+                "type": "array",
+                "items": {
+                    "type": "string"
                 },
-                "required": [
-                    "id",
-                    "user_id",
-                    "firstname",
-                    "lastname",
-                    "nickname",
-                    "email",
-                    "birthdate",
-                    "gender",
-                    "phone",
-                    "streetaddress",
-                    "postcode",
-                    "town",
-                    "countrycode",
-                    "created_at",
-                    "updated_at"
-                ],
+                "minItems": 0,
+                "maxItems": 0,
+                "additionalItems": false,
                 "title": "UserProfile"
             },
             "UserProfileCollection": {
@@ -8916,16 +8595,6 @@
                     "$ref": "#/components/schemas/UserProfileResource"
                 },
                 "title": "UserProfileCollection"
-            },
-            "UserProfileGender": {
-                "type": "string",
-                "enum": [
-                    "undefined",
-                    "male",
-                    "female",
-                    "other"
-                ],
-                "title": "UserProfileGender"
             },
             "UserProfileRequest": {
                 "type": "object",
@@ -8986,9 +8655,9 @@
                 "type": "object",
                 "properties": {
                     "id": {
-                        "type": "integer",
+                        "type": "string",
                         "examples": [
-                            1
+                            "1"
                         ]
                     },
                     "user_id": {
@@ -8998,70 +8667,43 @@
                         ]
                     },
                     "firstname": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "lastname": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "email": {
                         "type": "string"
                     },
                     "nickname": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "birthdate": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
+                        "type": "string",
                         "examples": [
                             "2019-08-24"
                         ]
                     },
                     "gender": {
-                        "$ref": "#/components/schemas/UserProfileGender"
+                        "type": "string"
                     },
                     "phone": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "address": {
                         "type": "object",
                         "properties": {
                             "streetaddress": {
-                                "type": [
-                                    "string",
-                                    "null"
-                                ]
+                                "type": "string"
                             },
                             "town": {
-                                "type": [
-                                    "string",
-                                    "null"
-                                ]
+                                "type": "string"
                             },
                             "postcode": {
-                                "type": [
-                                    "string",
-                                    "null"
-                                ]
+                                "type": "string"
                             },
                             "countrycode": {
-                                "type": [
-                                    "string",
-                                    "null"
-                                ]
+                                "type": "string"
                             }
                         },
                         "required": [
@@ -9078,18 +8720,10 @@
                         }
                     },
                     "created_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
+                        "type": "string"
                     },
                     "updated_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
+                        "type": "string"
                     }
                 },
                 "required": [

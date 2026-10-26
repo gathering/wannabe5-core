@@ -4,6 +4,14 @@ use App\Domain\Shared\Support\WannabeJwtCookie;
 use App\Models\User;
 
 test('wannabe jwt cookie is httpOnly with expected name and subject claim', function () {
+    // Unsigned base64 fallback (no private key) is not a 3-segment JWT; sign like production.
+    $keypair = openssl_pkey_new([
+        'private_key_bits' => 2048,
+        'private_key_type' => OPENSSL_KEYTYPE_RSA,
+    ]);
+    openssl_pkey_export($keypair, $privateKey);
+    config()->set('backend_compat.wannabe_jwt_private_key', $privateKey);
+
     $user = User::factory()->create();
     $cookie = WannabeJwtCookie::make($user, ['username' => 'crew']);
 

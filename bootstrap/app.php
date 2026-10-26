@@ -13,9 +13,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Frontend and legacy services send wannabe_jwt as a readable JWT cookie.
+        // Frontend and legacy auth cookies must remain readable (not Laravel-encrypted).
         $middleware->encryptCookies(except: [
             'wannabe_jwt',
+            'wannabe_refresh',
         ]);
 
         // OIDC login/callback stores state in the session; API routes need cookies+session.

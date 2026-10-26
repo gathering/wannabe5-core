@@ -68,10 +68,11 @@ test('compat proxy preserves multiple set-cookie headers from upstream auth resp
     $response = $this->get('/api/ms/auth/login');
     $response->assertOk();
 
-    $cookies = $response->headers->getCookies();
-    expect($cookies)->toHaveCount(2);
-    expect($cookies[0]->getName())->toBe('wannabe_jwt');
-    expect($cookies[1]->getName())->toBe('wannabe_refresh');
+    // Framework may also attach XSRF/session cookies; assert upstream cookies are preserved.
+    $cookies = collect($response->headers->getCookies())->keyBy(fn ($cookie) => $cookie->getName());
+    expect($cookies)->toHaveKeys(['wannabe_jwt', 'wannabe_refresh']);
+    expect($cookies['wannabe_jwt']->getValue())->toBe('abc123');
+    expect($cookies['wannabe_refresh']->getValue())->toBe('def456');
 });
 
 test('compat proxy forwards multipart payloads for profile image style endpoints', function () {
@@ -81,7 +82,8 @@ test('compat proxy forwards multipart payloads for profile image style endpoints
         'https://backend.local/api/profile/profile/77/profile-image' => Http::response(['uploaded' => true], 201),
     ]);
 
-    $file = UploadedFile::fake()->image('avatar.jpg');
+    // Avoid UploadedFile::fake()->image() — needs PHP GD (not always in local images).
+    $file = UploadedFile::fake()->create('avatar.jpg', 100, 'image/jpeg');
     $response = $this->post('/api/ms/profile/profile/77/profile-image', [
         'image' => $file,
     ]);

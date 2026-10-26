@@ -28,6 +28,7 @@ test('db:seed works', function () {
     expect($user->userProfile->nickname)->toBeString()->toBe('testbruker');
     expect($user->accessTokens->first()->token)->toBeString()->toBe('testbruker');
 
-    expect(User::all())->toHaveCount(11);
-    expect(UserProfile::all())->toHaveCount(11);
+    // testbruker + 10 UserSeeder users + normalbruker from LocalStackSeeder
+    expect(User::all())->toHaveCount(12);
+    expect(UserProfile::all())->toHaveCount(12);
 });
