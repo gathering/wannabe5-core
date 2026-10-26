@@ -23,7 +23,9 @@ services:
       - "wannabe5.gathering.org:host-gateway"
 
   db:
-    image: postgres
+    # Pin major version: postgres:latest is 18+, which rejects the legacy
+    # /var/lib/postgresql/data mount used by existing local volumes and CI.
+    image: postgres:17
     ports:
       - 127.0.0.1:5432:5432
     env_file: .env
