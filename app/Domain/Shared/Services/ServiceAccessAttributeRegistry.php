@@ -158,7 +158,7 @@ class ServiceAccessAttributeRegistry
 
         CrewUser::query()->with(['role'])->orderBy('id')->chunk(200, function ($rows) use (&$raw, $roleMap): void {
             foreach ($rows as $crewUser) {
-                $roleName = $crewUser->role?->name ?? 'member';
+                $roleName = $crewUser->role->name ?? 'member';
                 $attribute = $roleMap[$roleName] ?? 'crew:member';
                 $crew = Crew::query()->with('children')->find($crewUser->crew_id);
                 if ($crew === null) {

@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Crew extends Model
 {
@@ -25,22 +27,26 @@ class Crew extends Model
         'can_apply' => 'boolean',
     ];
 
-    public function users()
+    /** @return HasMany<CrewUser, $this> */
+    public function users(): HasMany
     {
         return $this->hasMany(CrewUser::class, 'crew_id');
     }
 
-    public function teams()
+    /** @return HasMany<CrewTeam, $this> */
+    public function teams(): HasMany
     {
         return $this->hasMany(CrewTeam::class, 'crew_id');
     }
 
-    public function parent()
+    /** @return BelongsTo<Crew, $this> */
+    public function parent(): BelongsTo
     {
         return $this->belongsTo(self::class, 'parent_crew');
     }
 
-    public function children()
+    /** @return HasMany<Crew, $this> */
+    public function children(): HasMany
     {
         return $this->hasMany(self::class, 'parent_crew')->with('children');
     }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CrewUser extends Model
 {
@@ -19,7 +20,8 @@ class CrewUser extends Model
         'custom_title',
     ];
 
-    public function role()
+    /** @return BelongsTo<CrewRole, $this> */
+    public function role(): BelongsTo
     {
         return $this->belongsTo(CrewRole::class, 'role_id');
     }

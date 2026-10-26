@@ -75,15 +75,7 @@ class WannabeJwtCookie
     {
         $map = [];
         foreach ($user->accessAttributes as $attribute) {
-            $key = (string) $attribute->key;
-            $value = $attribute->value;
-            if (is_array($value)) {
-                $map[$key] = array_values($value);
-            } elseif ($value !== null && $value !== '') {
-                $map[$key] = [$value];
-            } else {
-                $map[$key] = ['*'];
-            }
+            $map[(string) $attribute->key] = array_values($attribute->value);
         }
 
         return $map;
