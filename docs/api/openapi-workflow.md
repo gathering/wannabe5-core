@@ -14,11 +14,16 @@ composer run-script check:openapi
 
 This runs:
 
-1. `php artisan scramble:analyze`
-2. `php artisan scramble:export --path=openapi-ci.json`
-3. `diff openapi.json openapi-ci.json`
+1. `APP_URL=http://localhost:8000` (forced so local-stack hosts do not drift the server URL)
+2. `php artisan scramble:analyze`
+3. `php artisan scramble:export --path=openapi-ci.json`
+4. `diff openapi.json openapi-ci.json`
 
-If diff fails, regenerate and commit updated `openapi.json` (`php artisan scramble:export`).
+If diff fails, regenerate and commit updated `openapi.json` with the same pinned URL:
+
+```bash
+APP_URL=http://localhost:8000 php artisan scramble:export
+```
 
 ## CI Gate
 

@@ -7,7 +7,7 @@
     },
     "servers": [
         {
-            "url": "http://wannabe5.gathering.org:8000/api"
+            "url": "http://localhost:8000/api"
         }
     ],
     "tags": [

@@ -57,10 +57,12 @@ New user/admin-visible pages must extend `e2e/playwright/` coverage (see `AGENTS
 ## Generate OpenAPI documentation
 
 ```bash
-php artisan scramble:export
+APP_URL=http://localhost:8000 php artisan scramble:export
 # or
 composer run-script check:openapi
 ```
+
+Pin `APP_URL` when exporting so `servers[].url` stays `http://localhost:8000/api` (matches CI; local-stack hosts must not land in the committed file).
 
 ## Native domains vs compatibility adapter
 

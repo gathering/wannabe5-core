@@ -33,10 +33,11 @@ set -euo pipefail
 
 # Scramble needs DB schema introspection. Host .env uses DB_HOST=db (compose DNS),
 # which does not resolve outside the container — that aborts commits with a wall of PDO noise.
+# Pin APP_URL so openapi.json servers[] stays CI-stable (not wannabe5.gathering.org).
 if command -v docker >/dev/null 2>&1 && docker compose ps --status running --services 2>/dev/null | grep -qx devcontainer; then
-  docker compose exec -T -e TELESCOPE_ENABLED=false devcontainer php artisan scramble:export
+  docker compose exec -T -e TELESCOPE_ENABLED=false -e APP_URL=http://localhost:8000 devcontainer php artisan scramble:export
 else
-  DB_HOST=127.0.0.1 TELESCOPE_ENABLED=false php artisan scramble:export
+  APP_URL=http://localhost:8000 DB_HOST=127.0.0.1 TELESCOPE_ENABLED=false php artisan scramble:export
 fi
 HOOK;
 
