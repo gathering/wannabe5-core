@@ -39,6 +39,12 @@ class Crew extends Model
         return $this->hasMany(CrewTeam::class, 'crew_id');
     }
 
+    /** @return HasMany<CrewRole, $this> */
+    public function roles(): HasMany
+    {
+        return $this->hasMany(CrewRole::class, 'event_id', 'event_id');
+    }
+
     /** @return BelongsTo<Crew, $this> */
     public function parent(): BelongsTo
     {

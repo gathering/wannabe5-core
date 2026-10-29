@@ -15,11 +15,13 @@ class TaskResponse extends Model
         'value',
         'approved',
         'completed',
+        'skipped',
     ];
 
     protected $casts = [
         'value' => 'array',
         'approved' => 'boolean',
         'completed' => 'boolean',
+        'skipped' => 'boolean',
     ];
 }

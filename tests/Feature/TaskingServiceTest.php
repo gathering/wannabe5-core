@@ -1,7 +1,9 @@
 <?php
 
 use App\Models\Task;
+use App\Models\TaskQuestion;
 use App\Models\TaskRecipient;
+use App\Models\TaskResponse;
 use App\Models\User;
 
 test('tasking service supports event user and crew task workflows', function () {
@@ -51,10 +53,11 @@ test('tasking service supports event user and crew task workflows', function () 
         ->assertJsonPath('data.id', $task->id)
         ->assertJsonPath('data.required', true);
 
+    // Frontend expects 200 even on first create (not 201).
     $response = $this->asUser($user)->postJson("/api/tasking/events/1/user/{$user->id}/task/{$task->id}", [
         'value' => ['ack' => true],
         'completed' => true,
-    ])->assertStatus(201);
+    ])->assertOk();
     expect($response->json('data.approved'))->toBeFalse();
 
     // After completion, required gate must be empty (no forced /tasks redirect).
@@ -77,4 +80,52 @@ test('tasking service supports event user and crew task workflows', function () 
         ->assertOk()
         ->assertJsonCount(1, 'data');
     $this->asUser($user)->get('/api/tasking/liveness')->assertOk()->assertSee('ok');
+});
+
+test('task response accepts frontend questions payload and returns 200 on first save', function () {
+    $user = User::factory()->create();
+
+    $task = Task::create([
+        'event_id' => 1,
+        'name' => 'Showup',
+        'type' => 'forms',
+        'enabled' => true,
+        'skippable' => true,
+        'short_description' => 'Arrive',
+    ]);
+    TaskRecipient::create([
+        'task_id' => $task->id,
+        'recipient_type' => 'user',
+        'recipient_id' => $user->id,
+        'mandatory' => true,
+        'approval_needed' => false,
+    ]);
+    $question = TaskQuestion::create([
+        'task_id' => $task->id,
+        'optional' => false,
+        'hidden' => false,
+        'name' => 'Arrival time',
+        'description' => null,
+        'type' => 'textfield',
+        'options' => null,
+    ]);
+
+    $this->asUser($user)->postJson("/api/tasking/events/1/user/{$user->id}/task/{$task->id}", [
+        'questions' => [
+            (string) $question->id => 'Wednesday 09:00',
+        ],
+    ])
+        ->assertOk()
+        ->assertJsonPath('data.completed', true)
+        ->assertJsonPath('data.skipped', false)
+        ->assertJsonPath('data.value.'.$question->id, 'Wednesday 09:00');
+
+    expect(TaskResponse::query()->where('task_id', $task->id)->where('user_id', $user->id)->count())->toBe(1);
+
+    $this->asUser($user)->postJson("/api/tasking/events/1/user/{$user->id}/task/{$task->id}", [
+        'questions' => null,
+    ])
+        ->assertOk()
+        ->assertJsonPath('data.skipped', true)
+        ->assertJsonPath('data.completed', true);
 });

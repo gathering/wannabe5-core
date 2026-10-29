@@ -28,7 +28,7 @@ test('task response ownership assignment and approval are enforced', function ()
     $base = '/api/tasking/events/1/user/'.$user->id.'/task/'.$task->id;
     $this->asUser($user)->postJson($base, ['completed' => true])->assertForbidden();
     TaskRecipient::create(['task_id' => $task->id, 'recipient_type' => 'user', 'recipient_id' => $user->id]);
-    $this->asUser($user)->postJson($base, ['completed' => true])->assertCreated();
+    $this->asUser($user)->postJson($base, ['completed' => true])->assertOk();
     $this->asUser($other)->postJson($base, ['completed' => true])->assertForbidden();
     $this->asUser($user)->postJson($base.'/approve')->assertForbidden();
     $this->asUser($other)->getJson('/api/tasking/events/1/task/'.$task->id.'/responses')->assertForbidden();
@@ -67,6 +67,6 @@ test('crew membership writes reject unrelated actors and foreign teams', functio
     $path = "/api/crew/events/{$event->id}/crews/{$crew->id}/users";
     $this->asUser($other)->postJson($path, ['user_id' => $other->id, 'role_id' => $role->id])->assertForbidden();
     $this->asUser($manager)->postJson($path, ['user_id' => $other->id, 'role_id' => $role->id, 'team_id' => $team->id])->assertUnprocessable();
-    $this->asUser($manager)->postJson($path, ['user_id' => $other->id, 'role_id' => $role->id])->assertCreated();
+    $this->asUser($manager)->postJson($path, ['user_id' => $other->id, 'role_id' => $role->id])->assertOk();
     $this->asUser($other)->deleteJson($path.'/'.$other->id)->assertForbidden();
 });

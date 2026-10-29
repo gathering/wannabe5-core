@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\Crew\Services\CrewMembershipPresenter;
 use App\Models\Crew;
 use App\Models\CrewEvent;
 use Illuminate\Http\Request;
@@ -10,6 +11,8 @@ use Illuminate\Validation\Rule;
 
 class CrewServiceController extends Controller
 {
+    public function __construct(private CrewMembershipPresenter $memberships) {}
+
     public function index(int $event_id)
     {
         CrewEvent::query()->findOrFail($event_id);
@@ -41,13 +44,29 @@ class CrewServiceController extends Controller
         return response()->json(['data' => $crew], 201);
     }
 
-    public function show(int $event_id, int $crew_id)
+    public function show(Request $request, int $event_id, int $crew_id)
     {
         Gate::authorize('view', Crew::query()->where('event_id', $event_id)->findOrFail($crew_id));
 
-        return response()->json([
-            'data' => Crew::query()->where('event_id', $event_id)->findOrFail($crew_id),
-        ]);
+        $pretty = $request->boolean('pretty');
+        $with = $pretty
+            ? ['teams', 'roles', 'users.role', 'users.team', 'users.crew']
+            : ['users.role', 'users.team'];
+
+        $crew = Crew::query()
+            ->where('event_id', $event_id)
+            ->with($with)
+            ->findOrFail($crew_id);
+
+        $payload = $crew->toArray();
+        // Always expose users for show so member counts / lists work; pretty also hydrates profiles.
+        $payload['users'] = $this->memberships->presentMany($crew->users);
+        if ($pretty) {
+            $payload['teams'] = $crew->teams;
+            $payload['roles'] = $crew->roles;
+        }
+
+        return response()->json(['data' => $payload]);
     }
 
     public function update(Request $request, int $event_id, int $crew_id)

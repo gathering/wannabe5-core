@@ -12,6 +12,13 @@ class PageSeeder extends Seeder
      */
     public function run(): void
     {
-        Page::factory(10)->create();
+        if (! app()->environment(['local', 'testing'])) {
+            return;
+        }
+
+        // Reuse the local admin user so pages do not spawn orphan factory users.
+        Page::factory(10)->create([
+            'author_id' => 'eaf9efc2-adbb-4b27-b5a9-f6c60197ab56',
+        ]);
     }
 }

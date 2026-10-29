@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CrewUser;
 use App\Models\Task;
+use App\Models\TaskQuestion;
 use App\Models\TaskRecipient;
 use App\Models\TaskResponse;
 use Illuminate\Http\Request;
@@ -52,7 +53,7 @@ class TaskingServiceController extends Controller
             $row = $task->toArray();
             unset($row['recipients']);
             $row['completed'] = $completed;
-            $row['skipped'] = false;
+            $row['skipped'] = $response !== null ? (bool) $response->skipped : false;
             $row['required'] = $required;
             $row['approval_needed'] = (bool) $recipient->approval_needed;
             $row['approved'] = $response !== null ? (bool) $response->approved : false;
@@ -84,7 +85,7 @@ class TaskingServiceController extends Controller
         $payload['approval_needed'] = (bool) $recipient->approval_needed;
         $payload['completed'] = $response !== null ? (bool) $response->completed : false;
         $payload['approved'] = $response !== null ? (bool) $response->approved : false;
-        $payload['skipped'] = false;
+        $payload['skipped'] = $response !== null ? (bool) $response->skipped : false;
         $payload['values'] = $response?->value;
 
         return response()->json(['data' => $payload]);
@@ -93,24 +94,92 @@ class TaskingServiceController extends Controller
     public function storeTaskResponse(Request $request, int $event_id, string $user_id, int $task)
     {
         abort_unless(auth()->id() === $user_id, 403);
-        Task::query()->where('event_id', $event_id)->findOrFail($task);
-        $assigned = Task::query()->with('recipients')->findOrFail($task);
-        abort_unless($this->matchingRecipient($assigned->recipients, $event_id, $user_id) !== null, 403);
-        $validated = $request->validate([
+        $assigned = Task::query()
+            ->where('event_id', $event_id)
+            ->with(['recipients', 'questions'])
+            ->findOrFail($task);
+        $recipient = $this->matchingRecipient($assigned->recipients, $event_id, $user_id);
+        abort_unless($recipient !== null, 403);
+
+        // Frontend posts `{ questions: { [questionId]: value } }` (legacy contract).
+        // Also accept `value` for native/internal callers.
+        $request->validate([
+            'questions' => ['nullable', 'array'],
             'value' => ['nullable', 'array'],
             'completed' => ['boolean'],
         ]);
 
+        $usesFrontendQuestions = $request->exists('questions');
+        $answersInput = $usesFrontendQuestions
+            ? $request->input('questions')
+            : $request->input('value');
+
+        $mandatory = (bool) $recipient->mandatory;
+        $skippable = (bool) ($assigned->skippable ?? false);
+
+        $isSkip = $usesFrontendQuestions && ($answersInput === null || $answersInput === []);
+        if ($isSkip) {
+            abort_unless(! $mandatory || $skippable, 422, 'Task cannot be skipped.');
+
+            $response = TaskResponse::query()->updateOrCreate(
+                ['task_id' => $task, 'user_id' => $user_id],
+                [
+                    'value' => [],
+                    'completed' => true,
+                    'skipped' => true,
+                    // Matches prior core behavior: saves reset approval until an approver acts.
+                    'approved' => false,
+                ]
+            );
+
+            // Frontend only treats HTTP 200 as success (not 201).
+            return response()->json(['data' => $response->refresh()]);
+        }
+
+        /** @var array<string|int, mixed> $answers */
+        $answers = is_array($answersInput) ? $answersInput : [];
+
+        if ($usesFrontendQuestions) {
+            foreach (array_keys($answers) as $questionId) {
+                $question = TaskQuestion::query()->findOrFail($questionId);
+                abort_unless((int) $question->task_id === (int) $assigned->id, 403);
+            }
+
+            $values = [];
+            $missingRequired = false;
+            foreach ($assigned->questions as $question) {
+                $hasAnswer = array_key_exists($question->id, $answers)
+                    || array_key_exists((string) $question->id, $answers);
+                $answer = $answers[$question->id] ?? $answers[(string) $question->id] ?? null;
+
+                if (! $question->optional && (! $hasAnswer || $answer === '' || $answer === null)) {
+                    $missingRequired = true;
+                }
+
+                if ($hasAnswer) {
+                    $values[$question->id] = $answer;
+                }
+            }
+
+            $completed = ! $missingRequired;
+        } else {
+            $values = $answers;
+            $completed = $request->has('completed') ? (bool) $request->boolean('completed') : true;
+        }
+
         $response = TaskResponse::query()->updateOrCreate(
             ['task_id' => $task, 'user_id' => $user_id],
             [
-                'value' => $validated['value'] ?? [],
-                'completed' => $validated['completed'] ?? true,
+                'value' => $values,
+                'completed' => $completed,
+                'skipped' => false,
+                // Matches prior core behavior: saves reset approval until an approver acts.
                 'approved' => false,
             ]
         );
 
-        return response()->json(['data' => $response], $response->wasRecentlyCreated ? 201 : 200);
+        // Always 200 so wannabe5-frontend save/skip success checks succeed on first create.
+        return response()->json(['data' => $response->refresh()]);
     }
 
     public function approveTaskResponse(int $event_id, string $user_id, int $task)

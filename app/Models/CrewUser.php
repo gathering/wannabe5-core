@@ -20,6 +20,18 @@ class CrewUser extends Model
         'custom_title',
     ];
 
+    /** @return BelongsTo<Crew, $this> */
+    public function crew(): BelongsTo
+    {
+        return $this->belongsTo(Crew::class, 'crew_id');
+    }
+
+    /** @return BelongsTo<CrewTeam, $this> */
+    public function team(): BelongsTo
+    {
+        return $this->belongsTo(CrewTeam::class, 'team_id');
+    }
+
     /** @return BelongsTo<CrewRole, $this> */
     public function role(): BelongsTo
     {

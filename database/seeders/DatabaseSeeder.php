@@ -53,9 +53,10 @@ class DatabaseSeeder extends Seeder
         // Crew history for development user
         UserCrewHistory::factory()->for($dev_user->userProfile)->count(5)->create();
 
-        // Seed bunch of users
+        // Seed bunch of users + domain fixtures (crew members, apps, tasks, …)
         $this->call([
             UserSeeder::class,
+            PageSeeder::class,
             LocalStackSeeder::class,
         ]);
     }
