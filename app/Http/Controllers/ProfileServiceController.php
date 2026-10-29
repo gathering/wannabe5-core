@@ -7,6 +7,7 @@ use App\Models\ProfileImage;
 use App\Models\User;
 use App\Models\UserProfile;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 
 class ProfileServiceController extends Controller
@@ -31,7 +32,7 @@ class ProfileServiceController extends Controller
             $query->whereIn('user_id', $userIds);
         }
 
-        return response()->json($query->limit(50)->get());
+        return response()->json($query->limit(50)->get()->filter(fn ($profile) => Gate::allows('view', $profile))->values());
     }
 
     public function create(Request $request)
@@ -44,6 +45,8 @@ class ProfileServiceController extends Controller
             'gender' => ['nullable', 'string'],
         ]);
 
+        abort_unless($request->user()->id === $validated['user_id'], 403);
+
         $profile = UserProfile::query()->firstOrCreate(
             ['user_id' => $validated['user_id']],
             $validated
@@ -54,12 +57,16 @@ class ProfileServiceController extends Controller
 
     public function show(int|string $id)
     {
-        return response()->json($this->findProfile($id));
+        $profile = $this->findProfile($id);
+        Gate::authorize('view', $profile);
+
+        return response()->json($profile);
     }
 
     public function update(Request $request, int|string $id)
     {
         $profile = $this->findProfile($id);
+        Gate::authorize('update', $profile);
         $profile->update($request->only([
             'nickname', 'birthdate', 'phone', 'gender', 'streetaddress', 'town', 'postcode', 'countrycode',
         ]));
@@ -69,7 +76,9 @@ class ProfileServiceController extends Controller
 
     public function delete(int|string $id)
     {
-        $this->findProfile($id)->delete();
+        $profile = $this->findProfile($id);
+        Gate::authorize('update', $profile);
+        $profile->delete();
 
         return response()->json(true);
     }
@@ -77,6 +86,7 @@ class ProfileServiceController extends Controller
     public function showCrewHistory(int|string $id)
     {
         $profile = $this->findProfile($id);
+        Gate::authorize('view', $profile);
 
         return response()->json($profile->userCrewHistory()->get());
     }
@@ -99,6 +109,8 @@ class ProfileServiceController extends Controller
 
     public function showImage(int $profileId)
     {
+        Gate::authorize('view', $this->findProfile($profileId));
+
         return response()->json(
             ProfileImage::query()->where('profile_id', $profileId)->latest()->firstOrFail()
         );
@@ -106,12 +118,15 @@ class ProfileServiceController extends Controller
 
     public function createImage(Request $request, int $profileId)
     {
+        Gate::authorize('update', $this->findProfile($profileId));
+
         $this->findProfile($profileId);
         $request->validate([
             'image' => ['nullable', 'image', 'max:10240'],
             'profile_picture_file' => ['nullable', 'image', 'max:10240'],
         ]);
 
+        $this->imageProcessor->validateCrop($request->validate(['crop' => ['sometimes', 'array']])['crop'] ?? []);
         $upload = $request->file('profile_picture_file') ?? $request->file('image');
         abort_if($upload === null, 422, 'Profile picture file is missing');
 
@@ -149,6 +164,16 @@ class ProfileServiceController extends Controller
 
     public function updateImage(Request $request, int $profileId)
     {
+        if (! $request->exists('approval_state') && ! $request->exists('decline_reason')) {
+            Gate::authorize('update', $this->findProfile($profileId));
+        }
+        if ($request->exists('approval_state') || $request->exists('decline_reason')) {
+            $this->authorizeModeration();
+        }
+        if ($request->hasFile('image') || $request->hasFile('profile_picture_file') || $request->exists('crop')) {
+            Gate::authorize('update', $this->findProfile($profileId));
+        }
+
         $image = ProfileImage::query()->where('profile_id', $profileId)->latest()->firstOrFail();
         $request->validate([
             'image' => ['nullable', 'image', 'max:10240'],
@@ -158,6 +183,7 @@ class ProfileServiceController extends Controller
             'crop' => ['nullable', 'array'],
         ]);
 
+        $this->imageProcessor->validateCrop($request->validate(['crop' => ['sometimes', 'array']])['crop'] ?? []);
         $upload = $request->file('profile_picture_file') ?? $request->file('image');
         if ($upload !== null) {
             if ($image->approval_state === 'approved') {
@@ -188,6 +214,8 @@ class ProfileServiceController extends Controller
 
     public function approveImage(int $profileId)
     {
+        $this->authorizeModeration();
+
         $image = ProfileImage::query()->where('profile_id', $profileId)->latest()->firstOrFail();
         $image->update([
             'approval_state' => 'approved',
@@ -199,6 +227,8 @@ class ProfileServiceController extends Controller
 
     public function declineImage(Request $request, int $profileId)
     {
+        $this->authorizeModeration();
+
         $validated = $request->validate([
             'decline_reason' => ['nullable', 'string'],
         ]);
@@ -213,6 +243,8 @@ class ProfileServiceController extends Controller
 
     public function deleteImage(int $profileId)
     {
+        Gate::authorize('update', $this->findProfile($profileId));
+
         $image = ProfileImage::query()->where('profile_id', $profileId)->latest()->firstOrFail();
         if ($image->path) {
             Storage::disk('local')->delete($image->path);
@@ -224,6 +256,8 @@ class ProfileServiceController extends Controller
 
     public function getImage(int $profileId, ?string $size = null)
     {
+        Gate::authorize('view', $this->findProfile($profileId));
+
         $image = ProfileImage::query()->where('profile_id', $profileId)->latest()->firstOrFail();
 
         return $this->imageProcessor->stream($image, $size);
@@ -231,14 +265,20 @@ class ProfileServiceController extends Controller
 
     public function crop(Request $request, int $profileId)
     {
+        Gate::authorize('update', $this->findProfile($profileId));
+
         $image = ProfileImage::query()->where('profile_id', $profileId)->latest()->firstOrFail();
-        $image->update(['crop' => $request->input('crop', [])]);
+        $crop = $request->validate(['crop' => ['required', 'array']])['crop'];
+        $this->imageProcessor->validateCrop($crop);
+        $image->update(['crop' => $crop]);
 
         return response()->json($image->refresh());
     }
 
     public function indexImages(?string $approval_state = null)
     {
+        $this->authorizeModeration();
+
         $query = ProfileImage::query();
         if ($approval_state !== null) {
             $query->where('approval_state', $approval_state);
@@ -250,6 +290,13 @@ class ProfileServiceController extends Controller
     public function liveness()
     {
         return response('ok', 200);
+    }
+
+    private function authorizeModeration(): void
+    {
+        $user = auth()->user();
+        abort_unless($user && ($user->hasAccessAttribute('profile:image:manager')
+            || $user->hasAccessAttribute('event:owner') || $user->hasAccessAttribute('event:manager')), 403);
     }
 
     private function findProfile(int|string $id): UserProfile

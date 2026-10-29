@@ -32,6 +32,8 @@ class ApplicationQuestionController extends Controller
             'options' => ['array'],
         ]);
 
+        $this->authorizeWrite(new ApplicationQuestion($validated));
+
         return response()->json(ApplicationQuestion::create($validated), 201);
     }
 
@@ -43,6 +45,8 @@ class ApplicationQuestionController extends Controller
     public function update(Request $request, int $id)
     {
         $question = ApplicationQuestion::query()->findOrFail($id);
+        $this->authorizeWrite($question);
+        $this->authorizeWrite(new ApplicationQuestion([...$question->getAttributes(), ...$request->only(['crew_id', 'event_id'])]));
         $question->update($request->only(['crew_id', 'event_id', 'title', 'description', 'required', 'options']));
 
         return response()->json($question->refresh());
@@ -50,8 +54,19 @@ class ApplicationQuestionController extends Controller
 
     public function destroy(int $id)
     {
-        ApplicationQuestion::query()->findOrFail($id)->delete();
+        $question = ApplicationQuestion::query()->findOrFail($id);
+        $this->authorizeWrite($question);
+        $question->delete();
 
         return response()->json(true);
+    }
+
+    private function authorizeWrite(ApplicationQuestion $question): void
+    {
+        $user = auth()->user();
+        abort_unless(($question->event_id !== null && $user->hasAccessAttribute('event:owner', (string) $question->event_id))
+            || ($question->crew_id !== null && ($user->hasAccessAttribute('crew:owner', (string) $question->crew_id)
+                || $user->hasAccessAttribute('crew:manager', (string) $question->crew_id)
+                || $user->hasAccessAttribute('crew:applications:manager', (string) $question->crew_id))), 403);
     }
 }

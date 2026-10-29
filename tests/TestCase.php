@@ -25,6 +25,9 @@ abstract class TestCase extends BaseTestCase
     {
         $user = $user ?? User::factory()->create();
 
+        // Rebuild the request-bound guard when switching actors between requests.
+        app('auth')->forgetGuards();
+
         return $this->actingAsKeycloakUser($user, [
             'email' => $user->username,
         ]);

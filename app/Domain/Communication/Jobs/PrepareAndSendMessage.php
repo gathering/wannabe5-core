@@ -6,6 +6,7 @@ use App\Domain\Communication\Services\MessageDeliveryService;
 use App\Models\CommunicationMessage;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -21,13 +22,21 @@ class PrepareAndSendMessage implements ShouldQueue
 
     public function handle(MessageDeliveryService $delivery): void
     {
-        $message = CommunicationMessage::query()->find($this->messageId);
+        $failure = DB::transaction(fn () => $this->deliverLocked($delivery));
+        if ($failure !== null) {
+            throw $failure;
+        }
+    }
+
+    private function deliverLocked(MessageDeliveryService $delivery): ?Throwable
+    {
+        $message = CommunicationMessage::query()->lockForUpdate()->find($this->messageId);
         if ($message === null) {
-            return;
+            return null;
         }
 
         if ($message->state === 'sent') {
-            return;
+            return null;
         }
 
         try {
@@ -55,7 +64,9 @@ class PrepareAndSendMessage implements ShouldQueue
                 'tries' => $message->tries + 1,
             ]);
 
-            throw $exception;
+            return $exception;
         }
+
+        return null;
     }
 }

@@ -7,18 +7,26 @@ use Illuminate\Http\Request;
 
 class CommunicationTemplateController extends Controller
 {
+    use \App\Http\Concerns\CommunicationAccess;
+
     public function index()
     {
+        $this->authorizeCommunication('*', false);
+
         return response()->json(CommunicationTemplate::query()->latest()->get());
     }
 
     public function show(int $id)
     {
+        $this->authorizeCommunication((string) $id, false);
+
         return response()->json(CommunicationTemplate::query()->findOrFail($id));
     }
 
     public function create(Request $request)
     {
+        $this->authorizeCommunication('*', true);
+
         $validated = $request->validate([
             'name' => ['required', 'string'],
             'title' => ['required', 'string'],
@@ -36,6 +44,8 @@ class CommunicationTemplateController extends Controller
 
     public function update(Request $request, int $id)
     {
+        $this->authorizeCommunication((string) $id, true);
+
         $template = CommunicationTemplate::query()->findOrFail($id);
         $template->update($request->only(['name', 'title', 'content', 'schema', 'source_type', 'view_id']));
 
@@ -44,6 +54,8 @@ class CommunicationTemplateController extends Controller
 
     public function destroy(int $id)
     {
+        $this->authorizeCommunication((string) $id, true);
+
         CommunicationTemplate::query()->findOrFail($id)->delete();
 
         return response()->json(true);
@@ -51,6 +63,8 @@ class CommunicationTemplateController extends Controller
 
     public function schema(int $id)
     {
+        $this->authorizeCommunication((string) $id, false);
+
         $template = CommunicationTemplate::query()->findOrFail($id);
 
         return response()->json([
@@ -61,6 +75,8 @@ class CommunicationTemplateController extends Controller
 
     public function preview(int $id)
     {
+        $this->authorizeCommunication((string) $id, false);
+
         $template = CommunicationTemplate::query()->findOrFail($id);
 
         return response('<html><body>'.e((string) $template->content).'</body></html>', 200, [

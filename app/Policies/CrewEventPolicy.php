@@ -44,18 +44,18 @@ class CrewEventPolicy
 
     public function update(User $user, CrewEvent $event): bool
     {
-        return $this->isEventAdmin($user);
+        return $user->hasAccessAttribute('event:owner', (string) $event->id) || $user->hasAccessAttribute('event:manager', (string) $event->id);
     }
 
     public function delete(User $user, CrewEvent $event): bool
     {
-        return $this->isEventAdmin($user);
+        return $this->update($user, $event);
     }
 
     private function isEventAdmin(User $user): bool
     {
         return $user->hasAccessAttribute('event:owner', '*')
-            || $user->hasAccessAttribute('event:reader', '*')
+
             || $user->hasAccessAttribute('event:manager', '*');
     }
 }

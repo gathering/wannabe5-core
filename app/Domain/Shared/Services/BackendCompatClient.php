@@ -26,6 +26,7 @@ class BackendCompatClient
         $headers = $this->forwardableHeaders($request);
 
         $pending = Http::withHeaders($headers)
+            ->withoutRedirecting()
             ->timeout((int) config('backend_compat.timeout_seconds', 20));
 
         [$pending, $options] = $this->buildForwardOptions($pending, $request);

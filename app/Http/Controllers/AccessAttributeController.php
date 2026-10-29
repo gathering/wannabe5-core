@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\AccessAttribute;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
 class AccessAttributeController extends Controller
 {
     public function index(Request $request)
     {
+        Gate::authorize('viewAny', AccessAttribute::class);
+
         $query = AccessAttribute::query();
 
         if ($request->boolean('pretty')) {
@@ -29,11 +32,15 @@ class AccessAttributeController extends Controller
 
     public function show(AccessAttribute $attribute_id)
     {
+        Gate::authorize('view', $attribute_id);
+
         return response()->json($attribute_id);
     }
 
     public function create(Request $request)
     {
+        Gate::authorize('create', AccessAttribute::class);
+
         $validated = $request->validate([
             'source' => ['required', 'regex:/^[a-z0-9-]+$/'],
             'user_id' => ['required', 'uuid'],
@@ -55,6 +62,8 @@ class AccessAttributeController extends Controller
 
     public function update(Request $request, AccessAttribute $attribute_id)
     {
+        Gate::authorize('update', $attribute_id);
+
         $validated = $request->validate([
             'source' => ['required', 'regex:/^[a-z0-9-]+$/'],
             'user_id' => ['required', 'uuid'],
@@ -76,6 +85,8 @@ class AccessAttributeController extends Controller
 
     public function destroy(AccessAttribute $attribute_id)
     {
+        Gate::authorize('delete', $attribute_id);
+
         $attribute_id->delete();
 
         return response()->noContent();

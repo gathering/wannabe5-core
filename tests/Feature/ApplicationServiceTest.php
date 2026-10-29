@@ -7,7 +7,9 @@ use Illuminate\Support\Facades\Queue;
 test('application service supports application question answer and comment flows', function () {
     Queue::fake();
     $user = User::factory()->create();
+    \App\Models\AccessAttribute::create(['source' => 'application', 'user_id' => $user->id, 'key' => 'crew:applications:manager', 'value' => ['10']]);
 
+    \App\Models\AccessAttribute::create(['source' => 'test', 'user_id' => $user->id, 'key' => 'event:owner', 'value' => ['1']]);
     $createApplication = $this->asUser($user)->postJson('/api/application', [
         'user_id' => $user->id,
         'event_id' => 1,

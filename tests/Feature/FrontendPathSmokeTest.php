@@ -12,9 +12,17 @@ use Illuminate\Support\Facades\Queue;
  */
 test('frontend auth refresh-session path refreshes an authenticated session', function () {
     $user = User::factory()->create();
+    foreach (['event:owner', 'crew:applications:manager', 'profile:image:manager', 'com:admin', 'list:owner'] as $key) {
+        \App\Models\AccessAttribute::create(['source' => 'smoke', 'user_id' => $user->id, 'key' => $key, 'value' => ['*']]);
+    }
 
-    $this->asUser($user)->get('/api/auth/refresh-session')->assertOk()->assertSee('valid');
-    $this->asUser($user)->post('/api/auth/refresh-session')->assertOk()->assertSee('valid');
+    $oidc = Mockery::mock(\App\Domain\Auth\Services\KeycloakOidcClient::class);
+    $oidc->shouldReceive('isConfigured')->andReturn(true);
+    $oidc->shouldReceive('refreshAccessToken')->twice()->with('refresh')->andReturn(['access_token' => 'new', 'refresh_token' => 'refresh']);
+    app()->instance(\App\Domain\Auth\Services\KeycloakOidcClient::class, $oidc);
+    $this->withSession(['authflow.user_id' => $user->id, 'authflow.tokens' => ['refresh_token' => 'refresh']]);
+    $this->asUser($user)->get('/api/auth/refresh-session')->assertOk()->assertSee('renewed');
+    $this->asUser($user)->post('/api/auth/refresh-session')->assertOk()->assertSee('renewed');
 });
 
 test('logged-out homepage can fetch public crew frontpage without auth', function () {
@@ -27,6 +35,9 @@ test('logged-out homepage can fetch public crew frontpage without auth', functio
 
 test('frontend profile service paths resolve under /api/profile', function () {
     $user = User::factory()->create();
+    foreach (['event:owner', 'crew:applications:manager', 'profile:image:manager', 'com:admin', 'list:owner'] as $key) {
+        \App\Models\AccessAttribute::create(['source' => 'smoke', 'user_id' => $user->id, 'key' => $key, 'value' => ['*']]);
+    }
     $profileId = $user->userProfile->id;
 
     $this->asUser($user)->getJson("/api/profile/profile/{$profileId}")->assertOk();
@@ -39,6 +50,9 @@ test('frontend profile service paths resolve under /api/profile', function () {
 test('frontend application crew and communication paths resolve under native prefixes', function () {
     Queue::fake();
     $user = User::factory()->create();
+    foreach (['event:owner', 'crew:applications:manager', 'profile:image:manager', 'com:admin', 'list:owner'] as $key) {
+        \App\Models\AccessAttribute::create(['source' => 'smoke', 'user_id' => $user->id, 'key' => $key, 'value' => ['*']]);
+    }
     AccessAttribute::query()->create([
         'source' => 'test',
         'user_id' => $user->id,
@@ -97,6 +111,9 @@ test('frontend application crew and communication paths resolve under native pre
 
 test('frontend tasking paths resolve under /api/tasking', function () {
     $user = User::factory()->create();
+    foreach (['event:owner', 'crew:applications:manager', 'profile:image:manager', 'com:admin', 'list:owner'] as $key) {
+        \App\Models\AccessAttribute::create(['source' => 'smoke', 'user_id' => $user->id, 'key' => $key, 'value' => ['*']]);
+    }
 
     $task = Task::create([
         'event_id' => 1,
@@ -120,6 +137,9 @@ test('frontend tasking paths resolve under /api/tasking', function () {
 
 test('core UserProfile resource still resolves numeric and uuid ids', function () {
     $user = User::factory()->create();
+    foreach (['event:owner', 'crew:applications:manager', 'profile:image:manager', 'com:admin', 'list:owner'] as $key) {
+        \App\Models\AccessAttribute::create(['source' => 'smoke', 'user_id' => $user->id, 'key' => $key, 'value' => ['*']]);
+    }
     $profileId = $user->userProfile->id;
 
     $this->asUser($user)->getJson("/api/profile/{$profileId}")->assertOk();

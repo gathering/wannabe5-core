@@ -6,6 +6,7 @@ use App\Models\ProfileImage;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -20,6 +21,10 @@ class ProfileImageProcessor
 
     public function storeResized(UploadedFile $file, string $directory = 'profile-images'): string
     {
+        $dimensions = @getimagesize($file->getRealPath());
+        if ($dimensions === false || $dimensions[0] * $dimensions[1] > 20_000_000) {
+            throw ValidationException::withMessages(['image' => 'Image must contain at most 20 million pixels.']);
+        }
         if (! function_exists('imagecreatefromstring')) {
             return $file->store($directory, 'local');
         }
@@ -60,6 +65,7 @@ class ProfileImageProcessor
      */
     public function stream(ProfileImage $image, ?string $size = null): Response
     {
+        $this->validateCrop($image->crop ?? []);
         $normalized = $this->normalizeSize($size);
         if ($normalized === null) {
             return response()->json(['error' => 'Size not supported'], 404);
@@ -84,6 +90,25 @@ class ProfileImageProcessor
             'Content-Type' => 'image/jpeg',
             'Cache-Control' => 'private, max-age=3600',
         ]);
+    }
+
+    public function validateCrop(array $crop): void
+    {
+        foreach (['x', 'y', 'width', 'height', 'rotation'] as $key) {
+            if (! array_key_exists($key, $crop)) {
+                continue;
+            }
+            $value = $crop[$key];
+            if (! is_numeric($value) || ! is_finite((float) $value)
+                || ($key !== 'rotation' && ((float) $value < 0 || (float) $value > 1))
+                || (in_array($key, ['width', 'height'], true) && (float) $value <= 0)) {
+                throw ValidationException::withMessages(['crop.'.$key => 'Invalid crop value.']);
+            }
+        }
+        if ((float) ($crop['x'] ?? 0) + (float) ($crop['width'] ?? 1) > 1.000001
+            || (float) ($crop['y'] ?? 0) + (float) ($crop['height'] ?? 1) > 1.000001) {
+            throw ValidationException::withMessages(['crop' => 'Crop must fit within the image.']);
+        }
     }
 
     public function normalizeSize(?string $size): ?string

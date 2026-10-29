@@ -11,7 +11,7 @@ class ApplicationServiceController extends Controller
 {
     public function index(Request $request, string $crew)
     {
-        Gate::authorize('viewAny', ApplicationRecord::class);
+        Gate::authorize('viewAny', [ApplicationRecord::class, (int) $crew]);
 
         return response()->json(
             ApplicationRecord::query()
@@ -31,6 +31,9 @@ class ApplicationServiceController extends Controller
             'crew_id' => ['required', 'integer'],
             'status' => ['nullable', 'string'],
         ]);
+
+        abort_unless($validated['user_id'] === $request->user()->id, 403);
+        $validated['status'] = 'received';
 
         if (ApplicationRecord::query()->where('user_id', $validated['user_id'])->where('event_id', $validated['event_id'])->count() >= 3) {
             abort(403, 'Only 3 applications is allowed per event!');
@@ -59,7 +62,12 @@ class ApplicationServiceController extends Controller
     {
         $record = ApplicationRecord::query()->findOrFail($application);
         Gate::authorize('update', $record);
-        $record->update($request->only(['status', 'message']));
+        if ($request->has('status')) {
+            Gate::authorize('updateStatus', $record);
+
+            return $this->updateStatus($request, $application, (string) $request->input('status'));
+        }
+        $record->update($request->only(['message']));
 
         return response()->json($record->refresh());
     }
@@ -75,6 +83,8 @@ class ApplicationServiceController extends Controller
 
     public function allByUserId(Request $request, string $user)
     {
+        abort_unless($request->user()->id === $user || $request->user()->hasAccessAttribute('user:owner', $user), 403);
+
         return response()->json(
             ApplicationRecord::query()
                 ->where('user_id', $user)

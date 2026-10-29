@@ -70,6 +70,7 @@ class CrewPageServiceController extends Controller
     public function update(Request $request, int $event_id, int $page_id)
     {
         $page = CrewPage::query()->where('event_id', $event_id)->findOrFail($page_id);
+        abort_unless(auth()->user()->hasAccessAttribute('event:owner', (string) $event_id) || auth()->user()->hasAccessAttribute('event:manager', (string) $event_id), 403);
         $page->update($request->only(['content', 'type']));
 
         return response()->json($page->refresh());

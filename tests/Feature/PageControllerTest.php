@@ -6,6 +6,7 @@ use Database\Seeders\PageSeeder;
 
 test('get empty index', function () {
     $user = User::factory()->create();
+    \App\Models\AccessAttribute::create(['source' => 'test', 'user_id' => $user->id, 'key' => 'event:owner', 'value' => ['*']]);
 
     $response = $this->asUser($user)->getJson('/api/page');
     $response->assertStatus(200);
@@ -13,6 +14,7 @@ test('get empty index', function () {
 
 test('get index with pages', function () {
     $user = User::factory()->create();
+    \App\Models\AccessAttribute::create(['source' => 'test', 'user_id' => $user->id, 'key' => 'event:owner', 'value' => ['*']]);
 
     // Create 10 pages
     $this->seed(PageSeeder::class);
@@ -23,6 +25,7 @@ test('get index with pages', function () {
 
 test('get page', function () {
     $user = User::factory()->create();
+    \App\Models\AccessAttribute::create(['source' => 'test', 'user_id' => $user->id, 'key' => 'event:owner', 'value' => ['*']]);
     $page = Page::factory()->create();
 
     $response = $this->asUser($user)->getJson("/api/page/{$page->id}");
@@ -32,6 +35,7 @@ test('get page', function () {
 
 test('create new page', function () {
     $user = User::factory()->create();
+    \App\Models\AccessAttribute::create(['source' => 'test', 'user_id' => $user->id, 'key' => 'event:owner', 'value' => ['*']]);
 
     $response = $this->asUser($user)->postJson('/api/page/', [
         'title' => 'test title',
@@ -46,6 +50,7 @@ test('create new page', function () {
 
 test('update page', function () {
     $user = User::factory()->create();
+    \App\Models\AccessAttribute::create(['source' => 'test', 'user_id' => $user->id, 'key' => 'event:owner', 'value' => ['*']]);
     $page = Page::factory()->create();
 
     $response = $this->asUser($user)->putJson('/api/page/'.$page->id, [
@@ -56,7 +61,7 @@ test('update page', function () {
     ]);
 
     $response->assertJsonStructure(['data' => ['id', 'title', 'slug', 'content', 'author_id']]);
-    $response->assertJsonPath('data.author_id', $user->id);
+    $response->assertJsonPath('data.author_id', $page->author_id);
     $this->assertDatabaseHas('page_versions', [
         'page_id' => $page->id,
     ]);
@@ -64,6 +69,7 @@ test('update page', function () {
 
 test('fail validation on create page', function () {
     $user = User::factory()->create();
+    \App\Models\AccessAttribute::create(['source' => 'test', 'user_id' => $user->id, 'key' => 'event:owner', 'value' => ['*']]);
     $page = Page::factory()->create();
 
     // Fail with non unique slug
@@ -84,6 +90,7 @@ test('fail validation on create page', function () {
 
 test('get page versions', function () {
     $user = User::factory()->create();
+    \App\Models\AccessAttribute::create(['source' => 'test', 'user_id' => $user->id, 'key' => 'event:owner', 'value' => ['*']]);
     $page = Page::factory()->create();
 
     $response = $this->asUser($user)->getJson("/api/page/{$page->id}/versions");
@@ -99,6 +106,7 @@ test('get page versions', function () {
 
 test('page version writes are not exposed on core baseline routes', function () {
     $user = User::factory()->create();
+    \App\Models\AccessAttribute::create(['source' => 'test', 'user_id' => $user->id, 'key' => 'event:owner', 'value' => ['*']]);
     $page = Page::factory()->create();
 
     $this->asUser($user)->postJson("/api/page/{$page->id}/versions", [])->assertStatus(405);

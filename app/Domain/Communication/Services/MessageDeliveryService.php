@@ -24,11 +24,16 @@ class MessageDeliveryService
     {
         $recipient = $message->recipient ?? [];
         $to = $recipient['mail'] ?? $recipient['email'] ?? null;
+        if ($to === null && isset($recipient['user_id'])) {
+            $to = \App\Models\UserProfile::query()->where('user_id', $recipient['user_id'])->value('email');
+        }
         if (! is_string($to) || $to === '') {
             throw new RuntimeException('Mail recipient address is missing.');
         }
 
-        $driver = (string) config('mail.default', 'log');
+        $driver = (bool) config('communication.force_log_delivery', false)
+            ? 'log'
+            : (string) config('mail.default', 'log');
         $subject = (string) ($message->data['subject'] ?? $message->notification_name ?? 'Wannabe5 message');
         $body = (string) ($message->data['content'] ?? json_encode($message->data ?? [], JSON_THROW_ON_ERROR));
 

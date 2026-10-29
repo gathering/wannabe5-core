@@ -60,3 +60,5 @@ Any new user-facing page or admin surface must:
 
 1. Be listed here (and in `helpers/pages.ts`), and
 2. Get a Playwright coverage assertion in `e2e/playwright/tests/`.
+
+Security regression coverage: `tests/security-boundaries.spec.ts` exercises OIDC renewal and direct API authorization with the existing user roles; no new browser routes are introduced.

@@ -8,18 +8,29 @@ use Illuminate\Http\Request;
 
 class CommunicationMessageController extends Controller
 {
+    use \App\Http\Concerns\CommunicationAccess;
+
     public function index()
     {
+        $this->authorizeCommunication('*', false);
+
         return response()->json(CommunicationMessage::query()->latest()->get());
     }
 
     public function show(int $id)
     {
+        $this->authorizeCommunication((string) $id, false);
+
         return response()->json(CommunicationMessage::query()->findOrFail($id));
     }
 
     public function showMultiple(string $ids)
     {
+        $this->authorizeCommunication('*', false);
+        foreach (explode(',', $ids) as $messageId) {
+            $this->authorizeCommunication((string) (int) $messageId);
+        }
+
         $idList = array_filter(array_map('intval', explode(',', $ids)));
 
         return response()->json(CommunicationMessage::query()->whereIn('id', $idList)->get());
@@ -27,6 +38,8 @@ class CommunicationMessageController extends Controller
 
     public function create(Request $request)
     {
+        $this->authorizeCommunication('*', true);
+
         $validated = $request->validate([
             'channel' => ['required', 'in:sms,mail,slack'],
             'notification_name' => ['nullable', 'string'],
@@ -38,7 +51,7 @@ class CommunicationMessageController extends Controller
 
         $message = CommunicationMessage::create([
             ...$validated,
-            'state' => $validated['state'] ?? 'raw',
+            'state' => 'raw',
             'tries' => 0,
         ]);
 
@@ -49,6 +62,8 @@ class CommunicationMessageController extends Controller
 
     public function batchCreateAndSend(Request $request)
     {
+        $this->authorizeCommunication('*', true);
+
         $validated = $request->validate([
             'channel' => ['required', 'in:sms,mail,slack'],
             'notification_name' => ['nullable', 'string'],
@@ -79,6 +94,8 @@ class CommunicationMessageController extends Controller
 
     public function update(Request $request, int $id)
     {
+        $this->authorizeCommunication((string) $id, true);
+
         $message = CommunicationMessage::query()->findOrFail($id);
         $message->update($request->only([
             'channel',
@@ -86,10 +103,6 @@ class CommunicationMessageController extends Controller
             'recipient',
             'data',
             'source',
-            'state',
-            'last_error',
-            'tries',
-            'sent',
         ]));
 
         return response()->json($message->refresh());
@@ -97,6 +110,8 @@ class CommunicationMessageController extends Controller
 
     public function destroy(int $id)
     {
+        $this->authorizeCommunication((string) $id, true);
+
         CommunicationMessage::query()->findOrFail($id)->delete();
 
         return response()->json(true);
@@ -104,6 +119,8 @@ class CommunicationMessageController extends Controller
 
     public function retry(int $id)
     {
+        $this->authorizeCommunication((string) $id, true);
+
         $message = CommunicationMessage::query()->findOrFail($id);
         $message->update([
             'state' => 'raw',
@@ -116,6 +133,8 @@ class CommunicationMessageController extends Controller
 
     public function schema(int $id)
     {
+        $this->authorizeCommunication((string) $id, false);
+
         $message = CommunicationMessage::query()->findOrFail($id);
 
         return response()->json([
@@ -126,6 +145,8 @@ class CommunicationMessageController extends Controller
 
     public function preview(int $id)
     {
+        $this->authorizeCommunication((string) $id, false);
+
         $message = CommunicationMessage::query()->findOrFail($id);
         $body = is_array($message->data) ? ($message->data['content'] ?? json_encode($message->data)) : (string) $message->data;
 

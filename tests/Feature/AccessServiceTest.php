@@ -6,6 +6,7 @@ use App\Models\User;
 
 test('access service supports attribute-type and attribute CRUD', function () {
     $user = User::factory()->create();
+    AccessAttribute::create(['source' => 'access', 'user_id' => $user->id, 'key' => 'access:owner', 'value' => ['*']]);
 
     $createType = $this->asUser($user)->postJson('/api/access/attribute-types', [
         'key' => 'crew:member',
@@ -102,4 +103,34 @@ test('access user endpoints expose current user and has-attribute checks', funct
 
     $response = $this->asUser($user)->getJson("/api/access/users/{$other->id}/has/crew:member/anything")->assertOk();
     expect($response->json())->toBeTrue();
+});
+
+test('ordinary users cannot grant or change access permissions', function () {
+    $user = User::factory()->create();
+    $attribute = AccessAttribute::create([
+        'source' => 'crew', 'user_id' => $user->id,
+        'key' => 'crew:member', 'value' => ['1'],
+    ]);
+    $payload = [
+        'source' => 'access', 'user_id' => $user->id,
+        'key' => 'event:owner', 'value' => ['*'],
+    ];
+
+    $this->asUser($user)->postJson('/api/access/attributes', $payload)->assertForbidden();
+    $this->asUser($user)->putJson("/api/access/attributes/{$attribute->id}", $payload)->assertForbidden();
+    $this->asUser($user)->deleteJson("/api/access/attributes/{$attribute->id}")->assertForbidden();
+    expect($attribute->fresh()->key)->toBe('crew:member');
+    expect(AccessAttribute::where('key', 'event:owner')->exists())->toBeFalse();
+});
+
+test('ordinary users cannot administer attribute types', function () {
+    $user = User::factory()->create();
+    $type = AccessAttributeType::create([
+        'key' => 'crew:member', 'source' => 'crew', 'summary' => 'Crew membership',
+    ]);
+    $payload = ['key' => 'event:owner', 'source' => 'crew', 'summary' => 'Event owner'];
+    $this->asUser($user)->postJson('/api/access/attribute-types', $payload)->assertForbidden();
+    $this->asUser($user)->putJson('/api/access/attribute-types/'.$type->id, $payload)->assertForbidden();
+    $this->asUser($user)->deleteJson('/api/access/attribute-types/'.$type->id)->assertForbidden();
+    expect($type->fresh()->key)->toBe('crew:member');
 });

@@ -24,16 +24,17 @@ class AuthServiceController extends Controller
         session()->put('authflow.intended', $redirect);
         session()->put('authflow.intended-source', 'login');
 
+        $state = $this->oidc->newState();
+        session()->put('authflow.oidc_state', $state);
+
         if ($this->shouldRedirectToOidc($request) && $this->oidc->isConfigured()) {
-            $state = $this->oidc->newState();
-            session()->put('authflow.oidc_state', $state);
 
             return redirect()->away($this->oidc->authorizationUrl($state));
         }
 
         return response()->json([
             'redirect_to' => $this->oidc->isConfigured()
-                ? $this->oidc->authorizationUrl($this->oidc->newState())
+                ? $this->oidc->authorizationUrl($state)
                 : $redirect,
             'status' => 'login_started',
             'oidc_configured' => $this->oidc->isConfigured(),
@@ -46,16 +47,17 @@ class AuthServiceController extends Controller
         session()->put('authflow.intended', $redirect);
         session()->put('authflow.intended-source', 'register');
 
+        $state = $this->oidc->newState();
+        session()->put('authflow.oidc_state', $state);
+
         if ($this->shouldRedirectToOidc($request) && $this->oidc->isConfigured()) {
-            $state = $this->oidc->newState();
-            session()->put('authflow.oidc_state', $state);
 
             return redirect()->away($this->oidc->registrationUrl($state));
         }
 
         return response()->json([
             'redirect_to' => $this->oidc->isConfigured()
-                ? $this->oidc->registrationUrl($this->oidc->newState())
+                ? $this->oidc->registrationUrl($state)
                 : $redirect,
             'status' => 'register_started',
             'oidc_configured' => $this->oidc->isConfigured(),
@@ -103,6 +105,8 @@ class AuthServiceController extends Controller
                 ]
             );
 
+            session()->regenerate();
+            session()->put('authflow.user_id', $user->id);
             session()->put('authflow.tokens', [
                 'access_token' => $tokens['access_token'] ?? null,
                 'refresh_token' => $tokens['refresh_token'] ?? null,
@@ -137,7 +141,7 @@ class AuthServiceController extends Controller
 
     public function afterLogout()
     {
-        session()->forget(['authflow.tokens', 'authflow.intended', 'authflow.intended-source']);
+        session()->forget(['authflow.tokens', 'authflow.user_id', 'authflow.intended', 'authflow.intended-source']);
 
         return response()->json(['status' => 'logged_out'])->withCookie(WannabeJwtCookie::forget());
     }
@@ -150,6 +154,12 @@ class AuthServiceController extends Controller
         }
 
         $tokens = session('authflow.tokens', []);
+        if (! $this->oidc->isConfigured() || ! filled($tokens['refresh_token'] ?? null)
+            || session('authflow.user_id') !== $user->id) {
+            session()->forget(['authflow.tokens', 'authflow.user_id']);
+
+            return response('unauthenticated', 401)->withCookie(WannabeJwtCookie::forget());
+        }
         $result = 'valid';
         if ($this->oidc->isConfigured() && filled($tokens['refresh_token'] ?? null)) {
             try {
@@ -161,6 +171,7 @@ class AuthServiceController extends Controller
                 ]);
                 $result = 'renewed';
             } catch (Throwable $exception) {
+                session()->forget(['authflow.tokens', 'authflow.user_id']);
                 Log::info('OIDC refresh failed', ['error' => $exception->getMessage()]);
 
                 return response('unauthenticated', 401)->withCookie(WannabeJwtCookie::forget());
@@ -197,13 +208,14 @@ class AuthServiceController extends Controller
 
     public function afterLogin(Request $request)
     {
-        $user = $request->user();
-        abort_if($user === null, 401);
+        $response = $this->refreshSession($request);
+        if ($response->getStatusCode() !== 200) {
+            return $response;
+        }
+        $response->setContent(json_encode(['status' => 'login_completed'], JSON_THROW_ON_ERROR));
+        $response->headers->set('Content-Type', 'application/json');
 
-        HandleProfileSyncFromAuth::dispatch('after-login', $request->query());
-
-        return response()->json(['status' => 'login_completed'])
-            ->withCookie(WannabeJwtCookie::make($user));
+        return $response;
     }
 
     public function profile(Request $request)

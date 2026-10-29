@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\ApplicationComment;
 use App\Models\ApplicationRecord;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class ApplicationCommentServiceController extends Controller
 {
     public function index(int $application_id)
     {
         $application = ApplicationRecord::query()->findOrFail($application_id);
+        Gate::authorize('comment', $application);
 
         return response()->json($application->comments()->get());
     }
@@ -25,6 +27,7 @@ class ApplicationCommentServiceController extends Controller
         ]);
 
         $application = ApplicationRecord::query()->findOrFail($application_id);
+        Gate::authorize('comment', $application);
         $comment = $application->comments()->create([
             'user_id' => $user->id,
             'comment' => $validated['comment'],
@@ -35,6 +38,8 @@ class ApplicationCommentServiceController extends Controller
 
     public function update(int $application_id, int $comment_id, Request $request)
     {
+        Gate::authorize('comment', ApplicationRecord::findOrFail($application_id));
+
         $validated = $request->validate([
             'comment' => ['required', 'string'],
         ]);
@@ -49,6 +54,8 @@ class ApplicationCommentServiceController extends Controller
 
     public function delete(int $application_id, int $comment_id)
     {
+        Gate::authorize('comment', ApplicationRecord::findOrFail($application_id));
+
         ApplicationComment::query()
             ->where('application_id', $application_id)
             ->findOrFail($comment_id)

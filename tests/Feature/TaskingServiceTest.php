@@ -6,6 +6,7 @@ use App\Models\User;
 
 test('tasking service supports event user and crew task workflows', function () {
     $user = User::factory()->create();
+    \App\Models\AccessAttribute::create(['source' => 'tasking', 'user_id' => $user->id, 'key' => 'event:owner', 'value' => ['1']]);
 
     $task = Task::create([
         'event_id' => 1,

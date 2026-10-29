@@ -6,6 +6,7 @@ use Illuminate\Http\UploadedFile;
 
 test('profile service supports search create images and update-from-auth', function () {
     $user = User::factory()->create();
+    \App\Models\AccessAttribute::create(['source' => 'profile', 'user_id' => $user->id, 'key' => 'profile:image:manager', 'value' => ['*']]);
     $profileId = $user->userProfile->id;
 
     $this->asUser($user)->getJson('/api/profileservice/search?nickname=')->assertOk();
@@ -64,4 +65,17 @@ test('profile service supports search create images and update-from-auth', funct
     // Frontend-compatible alias under /api/profile (wannabe5-frontend service: "profile").
     $this->asUser($user)->getJson("/api/profile/profile/{$profileId}")->assertOk();
     $this->asUser($user)->getJson('/api/profile/search?nickname=')->assertOk();
+});
+
+test('profile aliases reject cross-user changes and owner moderation', function () {
+    $owner = User::factory()->create();
+    $other = User::factory()->create();
+    $id = $owner->userProfile->id;
+    foreach (['profile', 'profileservice'] as $prefix) {
+        $this->asUser($other)->getJson("/api/{$prefix}/profile/{$id}")->assertForbidden();
+        $this->asUser($other)->putJson("/api/{$prefix}/profile/{$id}", ['nickname' => 'changed'])->assertForbidden();
+        $this->asUser($other)->deleteJson("/api/{$prefix}/profile/{$id}")->assertForbidden();
+        $this->asUser($owner)->putJson("/api/{$prefix}/profile/{$id}/profile-image", ['approval_state' => 'approved'])->assertForbidden();
+    }
+    expect($owner->userProfile->fresh()->nickname)->not->toBe('changed');
 });

@@ -85,3 +85,7 @@ make e2e-playwright
 php artisan test --filter=FrontendPathSmokeTest
 composer test
 ```
+
+### Security boundaries
+
+The Playwright security-boundaries spec uses the unchanged frontend OIDC flow, checks ordinary-user denial for permission grants and message reads, verifies valid session renewal, and rejects renewal from a context containing only a copied JWT. Feature tests additionally cover profile aliases, owner moderation denial, application decisions, task ownership/assignment, private pages, and image allocation limits.

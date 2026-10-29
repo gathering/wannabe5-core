@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ApplicationAnswer;
 use App\Models\ApplicationRecord;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class ApplicationAnswerController extends Controller
 {
@@ -13,7 +14,7 @@ class ApplicationAnswerController extends Controller
         $questionId = $question ?? (int) $request->integer('question_id');
 
         return response()->json(
-            ApplicationAnswer::query()->where('question_id', $questionId)->get()
+            ApplicationAnswer::query()->where('question_id', $questionId)->get()->filter(fn ($answer) => Gate::allows('view', ApplicationRecord::findOrFail($answer->application_id)))->values()
         );
     }
 
@@ -26,6 +27,7 @@ class ApplicationAnswerController extends Controller
         ]);
 
         $application = ApplicationRecord::query()->findOrFail($validated['application_id']);
+        Gate::authorize('update', $application);
         $answer = ApplicationAnswer::query()->firstOrNew([
             'application_id' => $validated['application_id'],
             'question_id' => $validated['question_id'],
@@ -47,7 +49,9 @@ class ApplicationAnswerController extends Controller
         ]);
 
         $record = ApplicationAnswer::query()->findOrFail($answer);
+        Gate::authorize('update', ApplicationRecord::findOrFail($record->application_id));
         $application = ApplicationRecord::query()->findOrFail($validated['application_id']);
+        Gate::authorize('update', $application);
         $record->update([
             'question_id' => $validated['question_id'],
             'application_id' => $validated['application_id'],
@@ -61,7 +65,9 @@ class ApplicationAnswerController extends Controller
 
     public function delete(int $answer)
     {
-        ApplicationAnswer::query()->findOrFail($answer)->delete();
+        $record = ApplicationAnswer::query()->findOrFail($answer);
+        Gate::authorize('update', ApplicationRecord::findOrFail($record->application_id));
+        $record->delete();
 
         return response()->json(true);
     }

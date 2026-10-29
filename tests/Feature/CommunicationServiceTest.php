@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Queue;
 test('communication service supports templates notifications messages and lists', function () {
     Queue::fake();
     $user = User::factory()->create();
+    foreach (['com:admin', 'list:owner'] as $key) {
+        \App\Models\AccessAttribute::create(['source' => 'communication', 'user_id' => $user->id, 'key' => $key, 'value' => ['*']]);
+    }
 
     $template = $this->asUser($user)->postJson('/api/communication/templates', [
         'name' => 'welcome',

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CrewUser;
 use App\Models\Task;
 use App\Models\TaskRecipient;
 use App\Models\TaskResponse;
@@ -19,6 +20,7 @@ class TaskingServiceController extends Controller
 
     public function getTasksForUser(Request $request, int $event_id, string $user_id)
     {
+        abort_unless(auth()->id() === $user_id, 403);
         // Frontend layout fetches ?required=true to gate on incomplete required tasks only.
         $onlyRequiredIncomplete = $request->boolean('required');
 
@@ -62,6 +64,7 @@ class TaskingServiceController extends Controller
 
     public function showTaskForUser(int $event_id, string $user_id, int $task)
     {
+        abort_unless(auth()->id() === $user_id || auth()->user()->hasAccessAttribute('task:reader', (string) $task) || auth()->user()->hasAccessAttribute('task:approver', (string) $task) || auth()->user()->hasAccessAttribute('event:owner', (string) $event_id), 403);
         $record = Task::query()
             ->where('event_id', $event_id)
             ->with(['questions', 'recipients'])
@@ -89,7 +92,10 @@ class TaskingServiceController extends Controller
 
     public function storeTaskResponse(Request $request, int $event_id, string $user_id, int $task)
     {
+        abort_unless(auth()->id() === $user_id, 403);
         Task::query()->where('event_id', $event_id)->findOrFail($task);
+        $assigned = Task::query()->with('recipients')->findOrFail($task);
+        abort_unless($this->matchingRecipient($assigned->recipients, $event_id, $user_id) !== null, 403);
         $validated = $request->validate([
             'value' => ['nullable', 'array'],
             'completed' => ['boolean'],
@@ -109,6 +115,7 @@ class TaskingServiceController extends Controller
 
     public function approveTaskResponse(int $event_id, string $user_id, int $task)
     {
+        abort_unless(auth()->user()->hasAccessAttribute('event:owner', (string) $event_id) || auth()->user()->hasAccessAttribute('task:approver', (string) $task), 403);
         Task::query()->where('event_id', $event_id)->findOrFail($task);
         $response = TaskResponse::query()->where('task_id', $task)->where('user_id', $user_id)->firstOrFail();
         $response->update(['approved' => true]);
@@ -118,6 +125,8 @@ class TaskingServiceController extends Controller
 
     public function getTask(int $event_id, int $task)
     {
+        abort_unless(auth()->user()->hasAccessAttribute('event:owner', (string) $event_id) || auth()->user()->hasAccessAttribute('task:reader', (string) $task) || auth()->user()->hasAccessAttribute('task:approver', (string) $task), 403);
+
         return response()->json([
             'data' => Task::query()->where('event_id', $event_id)->with(['questions', 'recipients'])->findOrFail($task),
         ]);
@@ -125,6 +134,7 @@ class TaskingServiceController extends Controller
 
     public function getTaskResponses(int $event_id, int $task)
     {
+        abort_unless(auth()->user()->hasAccessAttribute('event:owner', (string) $event_id) || auth()->user()->hasAccessAttribute('task:reader', (string) $task) || auth()->user()->hasAccessAttribute('task:approver', (string) $task), 403);
         Task::query()->where('event_id', $event_id)->findOrFail($task);
 
         return response()->json([
@@ -134,6 +144,7 @@ class TaskingServiceController extends Controller
 
     public function getTasksForCrew(int $event_id, int $crew_id)
     {
+        abort_unless(auth()->user()->hasAccessAttribute('event:owner', (string) $event_id) || auth()->user()->hasAccessAttribute('crew:owner', (string) $crew_id) || auth()->user()->hasAccessAttribute('crew:manager', (string) $crew_id), 403);
         $taskIds = TaskRecipient::query()
             ->where('recipient_type', 'crew')
             ->where('recipient_id', (string) $crew_id)
@@ -146,6 +157,7 @@ class TaskingServiceController extends Controller
 
     public function getTaskForCrew(int $event_id, int $crew_id, int $task)
     {
+        abort_unless(auth()->user()->hasAccessAttribute('event:owner', (string) $event_id) || auth()->user()->hasAccessAttribute('crew:owner', (string) $crew_id) || auth()->user()->hasAccessAttribute('crew:manager', (string) $crew_id), 403);
         TaskRecipient::query()
             ->where('task_id', $task)
             ->where('recipient_type', 'crew')
@@ -162,7 +174,7 @@ class TaskingServiceController extends Controller
         $this->getTaskForCrew($event_id, $crew_id, $task);
 
         return response()->json([
-            'data' => TaskResponse::query()->where('task_id', $task)->get(),
+            'data' => TaskResponse::query()->where('task_id', $task)->whereIn('user_id', CrewUser::query()->where('crew_id', $crew_id)->select('user_id'))->get(),
         ]);
     }
 
@@ -172,6 +184,9 @@ class TaskingServiceController extends Controller
     private function matchingRecipient(Collection $recipients, int $event_id, string $user_id): ?TaskRecipient
     {
         foreach ($recipients as $recipient) {
+            if ($recipient->recipient_type === 'crew' && CrewUser::query()->where('crew_id', $recipient->recipient_id)->where('user_id', $user_id)->whereIn('crew_id', \App\Models\Crew::query()->where('event_id', $event_id)->select('id'))->exists()) {
+                return $recipient;
+            }
             if ($recipient->recipient_type === 'event' && (string) $recipient->recipient_id === (string) $event_id) {
                 return $recipient;
             }

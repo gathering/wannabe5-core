@@ -59,3 +59,26 @@ test('auth oidc callback creates user from token claims', function () {
     expect($user->username)->toBe('oidc.user@example.test');
     expect($user->type)->toBe('user');
 });
+
+test('json login and registration persist the state returned in their authorization URL', function (string $endpoint) {
+    config()->set('keycloak.base_url', 'https://sso.example.test');
+    config()->set('keycloak.realm', 'wannabe');
+    config()->set('keycloak.client_id', 'wannabe-core');
+    config()->set('keycloak.client_secret', 'secret');
+    config()->set('keycloak.redirect_uri', 'https://app.example.test/api/auth/callback');
+
+    $response = $this->getJson('/api/auth/'.$endpoint)->assertOk();
+    parse_str((string) parse_url($response->json('redirect_to'), PHP_URL_QUERY), $query);
+    expect($query['state'])->not->toBeEmpty()->toBe(session('authflow.oidc_state'));
+})->with(['login', 'register']);
+
+test('revoked upstream refresh clears server session and rejects renewal', function () {
+    $user = User::factory()->create();
+    $oidc = Mockery::mock(KeycloakOidcClient::class);
+    $oidc->shouldReceive('isConfigured')->andReturn(true);
+    $oidc->shouldReceive('refreshAccessToken')->once()->andThrow(new RuntimeException('revoked'));
+    app()->instance(KeycloakOidcClient::class, $oidc);
+    $this->withSession(['authflow.user_id' => $user->id, 'authflow.tokens' => ['refresh_token' => 'revoked']]);
+    $this->asUser($user)->post('/api/auth/refresh-session')->assertUnauthorized()
+        ->assertSessionMissing('authflow.tokens')->assertSessionMissing('authflow.user_id');
+});

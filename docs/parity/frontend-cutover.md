@@ -71,3 +71,7 @@ Manual checklist:
 - [ ] Profile show loads `/api/profile/profile/{id}` and avatar `<img>` renders
 - [ ] Crew event index loads `/api/crew/events`
 - [ ] Application comments load `/api/application/{id}/comments`
+
+### Core security hardening
+
+Existing frontend routes, HTTP methods and envelopes are retained. Image moderation PUT requests require moderator permission; owners cannot self-approve. Session renewal requires the server session created by OIDC login as well as the JWT cookie. SSR reads remain JWT-only compatible. See [security boundaries](../architecture/core-security-boundaries.md). No frontend package or environment change is required for the existing same-host proxy deployment.

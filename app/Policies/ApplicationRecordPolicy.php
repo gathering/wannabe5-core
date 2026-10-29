@@ -7,14 +7,16 @@ use App\Models\User;
 
 class ApplicationRecordPolicy
 {
-    public function viewAny(User $user): bool
+    public function viewAny(User $user, int $crew): bool
     {
-        return true;
+        return $user->hasAccessAttribute('crew:owner', (string) $crew)
+            || $user->hasAccessAttribute('crew:manager', (string) $crew)
+            || $user->hasAccessAttribute('crew:applications:manager', (string) $crew);
     }
 
     public function view(User $user, ApplicationRecord $application): bool
     {
-        return $user->id === $application->user_id;
+        return $user->id === $application->user_id || $this->viewAny($user, $application->crew_id);
     }
 
     public function create(User $user): bool
@@ -34,11 +36,11 @@ class ApplicationRecordPolicy
 
     public function updateStatus(User $user, ApplicationRecord $application): bool
     {
-        return true;
+        return $this->viewAny($user, $application->crew_id);
     }
 
     public function comment(User $user, ApplicationRecord $application): bool
     {
-        return true;
+        return $this->viewAny($user, $application->crew_id);
     }
 }

@@ -10,6 +10,7 @@ test('native application status transition dispatches and fans out a communicati
     Queue::fake();
 
     $user = User::factory()->create();
+    \App\Models\AccessAttribute::create(['source' => 'test', 'user_id' => $user->id, 'key' => 'crew:applications:manager', 'value' => ['10']]);
     $applicationId = $this->asUser($user)->postJson('/api/application', [
         'user_id' => $user->id,
         'event_id' => 1,

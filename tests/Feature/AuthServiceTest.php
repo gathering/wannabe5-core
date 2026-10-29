@@ -64,13 +64,9 @@ test('auth service provides protected session/profile endpoints', function () {
         ->assertOk()
         ->assertJsonPath('id', $user->id);
 
-    $this->asUser($user)->get('/api/auth/after-login')
-        ->assertOk()
-        ->assertJsonPath('status', 'login_completed');
+    $this->asUser($user)->get('/api/auth/after-login')->assertUnauthorized();
 
-    $this->asUser($user)->get('/api/auth/refresh-session')
-        ->assertOk()
-        ->assertSee('valid');
+    $this->asUser($user)->get('/api/auth/refresh-session')->assertUnauthorized();
 
     $this->asUser($user)->getJson('/api/auth/logout')
         ->assertOk()

@@ -5,11 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Crew;
 use App\Models\CrewTeam;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class CrewTeamServiceController extends Controller
 {
     public function createCrewTeam(Request $request, int $event_id, int $crew_id)
     {
+        Gate::authorize('update', Crew::query()->where('event_id', $event_id)->findOrFail($crew_id));
+
         Crew::query()->where('event_id', $event_id)->findOrFail($crew_id);
         $validated = $request->validate([
             'name' => ['required', 'string'],
@@ -23,6 +26,8 @@ class CrewTeamServiceController extends Controller
 
     public function updateCrewTeam(Request $request, int $event_id, int $crew_id, int $team_id)
     {
+        Gate::authorize('update', Crew::query()->where('event_id', $event_id)->findOrFail($crew_id));
+
         Crew::query()->where('event_id', $event_id)->findOrFail($crew_id);
         $team = CrewTeam::query()->where('crew_id', $crew_id)->findOrFail($team_id);
         $team->update($request->only(['name']));
@@ -32,6 +37,8 @@ class CrewTeamServiceController extends Controller
 
     public function deleteCrewTeam(int $event_id, int $crew_id, int $team_id)
     {
+        Gate::authorize('update', Crew::query()->where('event_id', $event_id)->findOrFail($crew_id));
+
         Crew::query()->where('event_id', $event_id)->findOrFail($crew_id);
         CrewTeam::query()->where('crew_id', $crew_id)->findOrFail($team_id)->delete();
 

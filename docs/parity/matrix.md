@@ -99,3 +99,7 @@ The compatibility surface in `tests/Fixtures/parity/backend_route_inventory.php`
 
 Total: 157 operations validated through `/api/ms/{service}/...` in `CompatSurfaceCoverageTest`.
 
+
+## Native security hardening
+
+Native authorization is enforced for access administration, application decisions and related content, profile aliases and image moderation, communication resources, crew writes, task responses, and core pages. See [security boundaries](../architecture/core-security-boundaries.md) for the permission rules and remaining coordinated work. The earlier policy-parity checklist is a capability inventory, not proof of exhaustive legacy equivalence. Security restrictions intentionally reject requests previously accepted from unrelated authenticated users.
