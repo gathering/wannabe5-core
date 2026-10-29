@@ -4690,6 +4690,14 @@
                         "schema": {
                             "type": "integer"
                         }
+                    },
+                    {
+                        "name": "pretty",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        }
                     }
                 ],
                 "responses": {
@@ -5017,11 +5025,32 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "",
+                        "description": "Legacy CrewUserCollection shape: { data: [...] } \u2014 member search reads `.data`.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "anyOf": [
+                                                {
+                                                    "type": "string"
+                                                },
+                                                {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    },
+                                                    "minItems": 0,
+                                                    "maxItems": 0,
+                                                    "additionalItems": false
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -5082,7 +5111,20 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "anyOf": [
+                                        {
+                                            "type": "string"
+                                        },
+                                        {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            },
+                                            "minItems": 0,
+                                            "maxItems": 0,
+                                            "additionalItems": false
+                                        }
+                                    ]
                                 }
                             }
                         }
@@ -5173,12 +5215,62 @@
                     }
                 },
                 "responses": {
-                    "201": {
-                        "description": "",
+                    "200": {
+                        "description": "Frontend form handlers only treat HTTP 200 as success.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer"
+                                        },
+                                        "created_at": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ],
+                                            "format": "date-time"
+                                        },
+                                        "updated_at": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ],
+                                            "format": "date-time"
+                                        },
+                                        "user_id": {
+                                            "type": "string"
+                                        },
+                                        "crew_id": {
+                                            "type": "integer"
+                                        },
+                                        "team_id": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "role_id": {
+                                            "type": "integer"
+                                        },
+                                        "custom_title": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "id",
+                                        "created_at",
+                                        "updated_at",
+                                        "user_id",
+                                        "crew_id",
+                                        "team_id",
+                                        "role_id",
+                                        "custom_title"
+                                    ]
                                 }
                             }
                         }
@@ -5233,7 +5325,57 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer"
+                                        },
+                                        "created_at": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ],
+                                            "format": "date-time"
+                                        },
+                                        "updated_at": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ],
+                                            "format": "date-time"
+                                        },
+                                        "user_id": {
+                                            "type": "string"
+                                        },
+                                        "crew_id": {
+                                            "type": "integer"
+                                        },
+                                        "team_id": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "role_id": {
+                                            "type": "integer"
+                                        },
+                                        "custom_title": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "id",
+                                        "created_at",
+                                        "updated_at",
+                                        "user_id",
+                                        "crew_id",
+                                        "team_id",
+                                        "role_id",
+                                        "custom_title"
+                                    ]
                                 }
                             }
                         }
@@ -5309,7 +5451,57 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer"
+                                        },
+                                        "created_at": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ],
+                                            "format": "date-time"
+                                        },
+                                        "updated_at": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ],
+                                            "format": "date-time"
+                                        },
+                                        "user_id": {
+                                            "type": "string"
+                                        },
+                                        "crew_id": {
+                                            "type": "integer"
+                                        },
+                                        "team_id": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "role_id": {
+                                            "type": "integer"
+                                        },
+                                        "custom_title": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "id",
+                                        "created_at",
+                                        "updated_at",
+                                        "user_id",
+                                        "crew_id",
+                                        "team_id",
+                                        "role_id",
+                                        "custom_title"
+                                    ]
                                 }
                             }
                         }
@@ -5406,7 +5598,20 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "anyOf": [
+                                        {
+                                            "type": "string"
+                                        },
+                                        {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            },
+                                            "minItems": 0,
+                                            "maxItems": 0,
+                                            "additionalItems": false
+                                        }
+                                    ]
                                 }
                             }
                         }
@@ -5450,7 +5655,20 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "anyOf": [
+                                        {
+                                            "type": "string"
+                                        },
+                                        {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            },
+                                            "minItems": 0,
+                                            "maxItems": 0,
+                                            "additionalItems": false
+                                        }
+                                    ]
                                 }
                             }
                         }
@@ -8209,6 +8427,15 @@
                             "schema": {
                                 "type": "object",
                                 "properties": {
+                                    "questions": {
+                                        "type": [
+                                            "array",
+                                            "null"
+                                        ],
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    },
                                     "value": {
                                         "type": [
                                             "array",
@@ -8228,11 +8455,19 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "",
+                        "description": "Always 200 so wannabe5-frontend save/skip success checks succeed on first create.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -8259,6 +8494,9 @@
                     },
                     "422": {
                         "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
