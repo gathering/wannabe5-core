@@ -1,5 +1,10 @@
 <?php
 
+use App\Models\ApplicationRecord;
+use App\Models\Crew;
+use App\Models\CrewTeam;
+use App\Models\CrewUser;
+use App\Models\Task;
 use App\Models\User;
 use App\Models\UserProfile;
 use Database\Seeders\DatabaseSeeder;
@@ -28,6 +33,14 @@ test('db:seed works', function () {
     expect($user->userProfile->nickname)->toBeString()->toBe('testbruker');
     expect($user->accessTokens->first()->token)->toBeString()->toBe('testbruker');
 
-    expect(User::all())->toHaveCount(11);
-    expect(UserProfile::all())->toHaveCount(11);
+    // testbruker + 10 UserSeeder + normalbruker + applicant + 5 fixed crew members
+    expect(User::all())->toHaveCount(18);
+    expect(UserProfile::all())->toHaveCount(18);
+
+    expect(Crew::query()->count())->toBeGreaterThanOrEqual(4);
+    expect(CrewTeam::query()->count())->toBeGreaterThanOrEqual(2);
+    expect(CrewUser::query()->count())->toBeGreaterThanOrEqual(7);
+    expect(CrewUser::query()->where('user_id', $user->id)->exists())->toBeTrue();
+    expect(ApplicationRecord::query()->count())->toBeGreaterThanOrEqual(3);
+    expect(Task::query()->count())->toBeGreaterThanOrEqual(3);
 });

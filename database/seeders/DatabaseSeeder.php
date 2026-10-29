@@ -20,12 +20,14 @@ class DatabaseSeeder extends Seeder
             return;
         }
 
-        // Create the development user
-        $dev_user = User::firstOrCreate([
-            'id' => 'eaf9efc2-adbb-4b27-b5a9-f6c60197ab56',
-            'username' => 'testbruker@wannabe.no',
-            'type' => 'user',
-        ]);
+        // Create the development user (match Keycloak testbruker UUID).
+        $dev_user = User::query()->firstOrCreate(
+            ['id' => 'eaf9efc2-adbb-4b27-b5a9-f6c60197ab56'],
+            [
+                'username' => 'testbruker@example.com',
+                'type' => 'user',
+            ]
+        );
 
         // Update UserProfile for development user
         $dev_user->userProfile->update([
@@ -51,9 +53,11 @@ class DatabaseSeeder extends Seeder
         // Crew history for development user
         UserCrewHistory::factory()->for($dev_user->userProfile)->count(5)->create();
 
-        // Seed bunch of users
+        // Seed bunch of users + domain fixtures (crew members, apps, tasks, …)
         $this->call([
             UserSeeder::class,
+            PageSeeder::class,
+            LocalStackSeeder::class,
         ]);
     }
 }

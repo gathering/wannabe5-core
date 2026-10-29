@@ -20,7 +20,7 @@ class UserProfilePolicy
      */
     public function view(User $user, UserProfile $userProfile): bool
     {
-        if ($user->id === $userProfile->user_id) {
+        if ($user->id === $userProfile->user_id || $user->hasAccessAttribute('profile:owner', (string) $userProfile->id)) {
             return true;
         }
 
@@ -40,7 +40,7 @@ class UserProfilePolicy
      */
     public function update(User $user, UserProfile $userProfile): bool
     {
-        if ($user->id === $userProfile->user_id) {
+        if ($user->id === $userProfile->user_id || $user->hasAccessAttribute('profile:owner', (string) $userProfile->id)) {
             return true;
         }
 

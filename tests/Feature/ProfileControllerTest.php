@@ -153,3 +153,10 @@ test('get profile for diffrent user should give 403', function () {
 
     $response->assertStatus(403);
 });
+
+test('profile create and delete are not exposed on core baseline routes', function () {
+    $user = User::factory()->create();
+
+    $this->asUser($user)->postJson('/api/profile', [])->assertStatus(405);
+    $this->asUser($user)->deleteJson("/api/profile/{$user->userProfile->id}")->assertStatus(405);
+});

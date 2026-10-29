@@ -1,0 +1,17 @@
+{
+  "name": "wannabe5-core-e2e-playwright",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Browser e2e (Playwright) against local wannabe5 stack",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.55.0",
+    "@types/node": "^22.13.10",
+    "typescript": "^5.8.2"
+  }
+}

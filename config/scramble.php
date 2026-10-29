@@ -76,20 +76,13 @@ return [
     ],
 
     /*
-     * The list of servers of the API. By default, when `null`, server URL will be created from
-     * `scramble.api_path` and `scramble.api_domain` config variables. When providing an array, you
-     * will need to specify the local server URL manually (if needed).
-     *
-     * Example of non-default config (final URLs are generated using Laravel `url` helper):
-     *
-     * ```php
-     * 'servers' => [
-     *     'Live' => 'api',
-     *     'Prod' => 'https://scramble.dedoc.co/api',
-     * ],
-     * ```
+     * Pin a stable absolute server URL so committed openapi.json does not drift with
+     * local-stack APP_URL (e.g. http://wannabe5.gathering.org:8000). CI check:openapi
+     * diffs against this same constant.
      */
-    'servers' => null,
+    'servers' => [
+        'Local' => 'http://localhost:8000/api',
+    ],
 
     /**
      * Determines how Scramble stores the descriptions of enum cases.

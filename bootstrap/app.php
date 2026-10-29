@@ -13,6 +13,19 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Frontend and legacy auth cookies must remain readable (not Laravel-encrypted).
+        $middleware->encryptCookies(except: [
+            'wannabe_jwt',
+            'wannabe_refresh',
+        ]);
+
+        // OIDC login/callback stores state in the session; API routes need cookies+session.
+        $middleware->api(prepend: [
+            Illuminate\Cookie\Middleware\EncryptCookies::class,
+            Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            Illuminate\Session\Middleware\StartSession::class,
+        ]);
+
         // Do not redirect to /login if not_authenticated
         $middleware->redirectGuestsTo(function (Request $request) {
             return response()->json(['status' => 'error', 'hint' => 'not_authenticated'], 403);

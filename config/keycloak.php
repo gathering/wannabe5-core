@@ -12,4 +12,12 @@ return [
     'ignore_resources_validation' => true,
     'leeway' => env('KEYCLOAK_LEEWAY', 0),
     'input_key' => null,
+
+    // OIDC / Keycloak Web flow settings used by native auth service endpoints.
+    'base_url' => env('KEYCLOAK_BASE_URL'),
+    'realm' => env('KEYCLOAK_REALM', 'wannabe'),
+    'client_id' => env('KEYCLOAK_CLIENT_ID'),
+    'client_secret' => env('KEYCLOAK_CLIENT_SECRET'),
+    'redirect_uri' => env('KEYCLOAK_REDIRECT_URI'),
+    'post_logout_redirect_uri' => env('KEYCLOAK_POST_LOGOUT_REDIRECT_URI'),
 ];

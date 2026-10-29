@@ -25,14 +25,27 @@ class precommit extends Command
      */
     public function handle()
     {
-        $precommitConfig = '
-            #!/bin/bash
-            ./vendor/bin/pint
-            php artisan scramble:export';
-        if (file_put_contents('.git/hooks/pre-commit', $precommitConfig) !== false) {
-            echo 'Pre-commit config written successfully.'.PHP_EOL;
+        $hook = <<<'HOOK'
+#!/usr/bin/env bash
+set -euo pipefail
+
+./vendor/bin/pint
+
+# Scramble needs DB schema introspection. Host .env uses DB_HOST=db (compose DNS),
+# which does not resolve outside the container — that aborts commits with a wall of PDO noise.
+# Pin APP_URL so openapi.json servers[] stays CI-stable (not wannabe5.gathering.org).
+if command -v docker >/dev/null 2>&1 && docker compose ps --status running --services 2>/dev/null | grep -qx devcontainer; then
+  docker compose exec -T -e TELESCOPE_ENABLED=false -e APP_URL=http://localhost:8000 devcontainer php artisan scramble:export
+else
+  APP_URL=http://localhost:8000 DB_HOST=127.0.0.1 TELESCOPE_ENABLED=false php artisan scramble:export
+fi
+HOOK;
+
+        if (file_put_contents('.git/hooks/pre-commit', $hook) !== false) {
+            chmod('.git/hooks/pre-commit', 0755);
+            $this->info('Pre-commit config written successfully.');
         } else {
-            echo 'Failed to write pre-commit config.'.PHP_EOL;
+            $this->error('Failed to write pre-commit config.');
         }
     }
 }

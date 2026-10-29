@@ -1,6 +1,25 @@
 # wannabe5-core
 
-Wannabe5 Core - under development
+Wannabe5 Core — consolidation API for Wannabe5.
+
+It serves:
+
+- **Native domain APIs** at `/api/{auth|access|application|communication|crew|profile|tasking}/...` (preferred; used by `wannabe5-frontend`)
+- **Core resources** (pages, UserProfile, metrics)
+- **Compatibility adapter** at `/api/ms/{service}/...` for gradual legacy cutover
+
+Docs index: [`docs/README.md`](docs/README.md). Frontend cutover: [`docs/parity/frontend-cutover.md`](docs/parity/frontend-cutover.md). Agent/PR rules: [`AGENTS.md`](AGENTS.md).
+
+### Local stack (Makefile)
+
+With sibling `wannabe5-backend` + `wannabe5-frontend` checkouts and hosts entries for `keycloak.wannabe5.gathering.org`:
+
+```bash
+make stack-up      # Keycloak (backend) + core compose + env wiring
+make frontend-up   # frontend .env.local → core, then pnpm dev
+```
+
+See [`docs/development/local-stack.md`](docs/development/local-stack.md). Test user: `testbruker` / `testbruker`.
 
 ### Development user
 
@@ -104,3 +123,44 @@ php artisan serve
 ```
 
 Now check out step 4 from the regular guide to validate that app is working as expected
+
+## Native microservice surfaces
+
+Preferred client paths (no frontend code changes when pointing `wannabe5-frontend` here):
+
+- `/api/auth/...`
+- `/api/access/...`
+- `/api/application/...`
+- `/api/communication/...`
+- `/api/crew/...`
+- `/api/profile/...` (legacy profile-service paths + core UserProfile `{id|uuid}`)
+- `/api/tasking/...`
+
+`/api/profileservice/...` is an explicit alias of the profile-service surface. Avatar URLs under `.../profile-image/image*` stream JPEG bytes.
+
+See [`docs/api/native-surfaces.md`](docs/api/native-surfaces.md).
+
+## Compatibility adapter (`/api/ms`)
+
+Optional forwarder to legacy microservices during cutover:
+
+- `/api/ms/access/...`
+- `/api/ms/application/...`
+- `/api/ms/auth/...`
+- `/api/ms/communication/...`
+- `/api/ms/crew/...`
+- `/api/ms/profile/...`
+- `/api/ms/tasking/...`
+
+Set upstream bases in `.env` (`BACKEND_COMPAT_*_URL`). Keycloak and communication delivery settings use `KEYCLOAK_*` and `COMMUNICATION_*`.
+
+## Frontend against core
+
+In `wannabe5-frontend/.env`:
+
+```bash
+API_URL=http://localhost:8000/api
+API_PROXY_DESTINATION=http://localhost:8000/api
+```
+
+Full cutover notes: [`docs/parity/frontend-cutover.md`](docs/parity/frontend-cutover.md).

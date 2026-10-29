@@ -1,0 +1,8 @@
+{
+  "name": "wannabe5-core",
+  "env": "testing",
+  "debug": true,
+  "url": "http://localhost",
+  "timezone": "UTC"
+}
+

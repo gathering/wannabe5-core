@@ -7,6 +7,7 @@ use App\Http\Resources\PageCollection;
 use App\Http\Resources\PageResource;
 use App\Models\Page;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class PageController extends Controller
 {
@@ -18,7 +19,7 @@ class PageController extends Controller
     public function index()
     {
         // Return the retrieved pages as a JSON response
-        return new PageCollection(Page::all());
+        return new PageCollection(Page::all()->filter(fn ($page) => Gate::allows('view', $page))->values());
     }
 
     /**
@@ -29,6 +30,8 @@ class PageController extends Controller
      */
     public function show(Page $page)
     {
+        Gate::authorize('view', $page);
+
         return new PageResource($page);
     }
 
@@ -40,11 +43,12 @@ class PageController extends Controller
      */
     public function store(PageRequest $request)
     {
+        Gate::authorize('create', Page::class);
         $validatedData = $request->validated(); // Uses PageRequest validation
 
         // Create new page instance and fill it with validated data
         $page = new Page;
-        $page->fill($validatedData);
+        $page->fill([...$validatedData, 'author_id' => auth()->id()]);
         $page->save();
 
         return new PageResource($page);
@@ -58,6 +62,7 @@ class PageController extends Controller
      */
     public function update(PageRequest $request, Page $page)
     {
+        Gate::authorize('update', $page);
         // Save current version
         $page->versions()->create([
             'title' => $page->title,
@@ -70,7 +75,7 @@ class PageController extends Controller
 
         // Update live page with new data from request
 
-        $page->updateOrFail($request->safe()->only(['title', 'slug', 'content', 'public', 'author_id']));
+        $page->updateOrFail($request->safe()->only(['title', 'slug', 'content', 'public']));
 
         // Return updated page as JSON response
         return new PageResource($page);
@@ -84,6 +89,7 @@ class PageController extends Controller
      */
     public function destroy(Page $page)
     {
+        Gate::authorize('delete', $page);
         $page->delete();
 
         return response()->json(['message' => 'Page deleted successfully'], 200);
