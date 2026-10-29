@@ -14,16 +14,19 @@ composer run-script check:openapi
 
 This runs:
 
-1. `APP_URL=http://localhost:8000` (forced so local-stack hosts do not drift the server URL)
+1. `APP_URL=http://localhost:8000` (forced so residual `url()` usage cannot pick up local-stack hosts)
 2. `php artisan scramble:analyze`
 3. `php artisan scramble:export --path=openapi-ci.json`
-4. `diff openapi.json openapi-ci.json`
+4. Assert `servers[0].url` is `http://localhost:8000/api` (also pinned in `config/scramble.php`)
+5. `diff openapi.json openapi-ci.json`
 
-If diff fails, regenerate and commit updated `openapi.json` with the same pinned URL:
+If diff fails, regenerate and commit updated `openapi.json`:
 
 ```bash
 APP_URL=http://localhost:8000 php artisan scramble:export
 ```
+
+Do not commit a `servers[].url` that uses `wannabe5.gathering.org` — CI will fail.
 
 ## CI Gate
 

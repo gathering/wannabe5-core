@@ -62,7 +62,7 @@ APP_URL=http://localhost:8000 php artisan scramble:export
 composer run-script check:openapi
 ```
 
-Pin `APP_URL` when exporting so `servers[].url` stays `http://localhost:8000/api` (matches CI; local-stack hosts must not land in the committed file).
+`config/scramble.php` pins `servers[]` to `http://localhost:8000/api` so local-stack `APP_URL` cannot drift the committed file. After pulling hook changes, run `php artisan app:precommit` so `.git/hooks/pre-commit` stays in sync.
 
 ## Native domains vs compatibility adapter
 
